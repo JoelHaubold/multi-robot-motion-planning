@@ -6,10 +6,10 @@ set(CMAKE_CXX_STANDARD 14)
 
 add_executable(mrmp_implementation main.cpp RandomGenerator.cpp RandomGenerator.h WorkspaceGenarator.cpp WorkspaceGenarator.h WSFreeSpaceGenerator.cpp WSFreeSpaceGenerator.h mytypedefs.h constants.h)
 
-include(C:/Users/joelh/Documents/CppStuff/vcpkg/scripts/buildsystems/vcpkg.cmake)
+#include(C:/Users/joelh/Documents/CppStuff/vcpkg/scripts/buildsystems/vcpkg.cmake)
 
 set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTOUIC ON)
+#set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
 #find_package(Qt5 REQUIRED)
@@ -30,5 +30,5 @@ pkg_check_modules(gmp REQUIRED IMPORTED_TARGET gmp)
 target_link_libraries(mrmp_implementation PkgConfig::gmp)
 target_link_libraries(mrmp_implementation CGAL::CGAL)
 target_link_libraries(mrmp_implementation Qt5::Widgets)
-#target_link_libraries(mrmp_implementation CGAL::CGAL_Qt5)
+target_link_libraries(mrmp_implementation CGAL::CGAL_Qt5)
 target_link_libraries(mrmp_implementation CGAL::CGAL_Basic_viewer)
