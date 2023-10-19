@@ -4,7 +4,7 @@ project(mrmp_implementation)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(mrmp_implementation main.cpp RandomGenerator.cpp RandomGenerator.h WorkspaceGenarator.cpp WorkspaceGenarator.h)
+add_executable(mrmp_implementation main.cpp RandomGenerator.cpp RandomGenerator.h WorkspaceGenarator.cpp WorkspaceGenarator.h WSFreeSpaceGenerator.cpp WSFreeSpaceGenerator.h mytypedefs.h constants.h)
 
 include(C:/Users/joelh/Documents/CppStuff/vcpkg/scripts/buildsystems/vcpkg.cmake)
 

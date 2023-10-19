@@ -11,11 +11,11 @@
 class RandomGenerator {
 public:
   RandomGenerator();
-  int getRandomInt(int min, int max);
-  double getRandomDouble(double min, double max);
+  static int getRandomInt(int min, int max);
+  static double getRandomDouble(double min, double max);
 
 private:
-  CGAL::Random rand;
+  static CGAL::Random cgalRandom;
 };
 
 

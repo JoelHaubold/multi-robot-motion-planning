@@ -4,12 +4,14 @@
 
 #include "RandomGenerator.h"
 
-RandomGenerator::RandomGenerator() : rand(CGAL::get_default_random()) {}
+CGAL::Random RandomGenerator::cgalRandom = CGAL::get_default_random();
+
+RandomGenerator::RandomGenerator()  = default;
 
 int RandomGenerator::getRandomInt(int min, int max) {
-  return rand.get_int(min, max);
+  return RandomGenerator::cgalRandom.get_int(min, max);
 }
 
 double RandomGenerator::getRandomDouble(double min, double max) {
-  return rand.get_double(min, max);
+  return cgalRandom.get_double(min, max);
 }

@@ -1,16 +1,10 @@
-#include <CGAL/Simple_cartesian.h>
-#include <CGAL/Polygon_2.h>
-#include <CGAL/Polygon_with_holes_2.h>
-#include <CGAL/point_generators_2.h>
-#include <CGAL/random_polygon_2.h>
-#include <CGAL/draw_polygon_2.h>
 #include <CGAL/draw_polygon_with_holes_2.h>
 #include <CGAL/Boolean_set_operations_2.h>
 #include <CGAL/minkowski_sum_2.h>
 #include <CGAL/Polygon_vertical_decomposition_2.h>
 #include <stdexcept>
-#include <vector>
-
+#include "WorkspaceGenarator.h"
+#include "mytypedefs.h"
 
 
 //#ifdef CGAL_USE_GMP
@@ -25,74 +19,17 @@ typedef double RT;
 
 #include <fstream>
 #include <list>
-typedef CGAL::Exact_predicates_exact_constructions_kernel K;
-//typedef CGAL::Simple_cartesian<RT>                        K;
-typedef K::Point_2                                        Point_2;
-typedef std::list<Point_2>                                Container;
-typedef CGAL::Polygon_2<K, Container>                     Polygon_2;
-typedef CGAL::Polygon_with_holes_2<K, Container>          Polygon_wh_2;
-typedef CGAL::Bbox_2                                      Bbox_2;
-typedef CGAL::Creator_uniform_2<int, Point_2>             Creator;
-typedef CGAL::Random_points_in_square_2<Point_2, Creator> Point_generator;
-typedef std::list<Polygon_wh_2>                           Pwh_list_2;
 
-const double RADIUS = 100;
-const int MAX_POLY_SIZE = 100;
+//const double RADIUS = 100;
+//const int MAX_POLY_SIZE = 100;
+//
+//const int OBSTACLE_OFFSET = 5;
+//const int ROBOT_SIZE = 4;
+//
+//const int NMBR_START_POS = 10;
+//const int WORKSPACE_COMPLEXITY = 50;
 
-const int OBSTACLE_OFFSET = 5;
-const int ROBOT_SIZE = 4;
-
-const int NMBR_START_POS = 10;
-const int WORKSPACE_COMPLEXITY = 50;
-
-Polygon_2 generateRandomPolygon() {
-  Polygon_2            polygon;
-  std::list<Point_2>   point_set;
-  CGAL::Random         rand;
-  std::cerr << "Seed = " <<  rand.get_seed() << std::endl;
-  int size = rand.get_int(4, MAX_POLY_SIZE);
-  // copy size points from the generator, eliminating duplicates, so the
-  // polygon will have <= size vertices
-  CGAL::copy_n_unique(Point_generator(RADIUS), size,
-                      std::back_inserter(point_set));
-  std::ostream_iterator< Point_2 >  out( std::cout, " " );
-  std::cout << "From the following " << point_set.size() << " points "
-            << std::endl;
-  std::copy(point_set.begin(), point_set.end(), out);
-  std::cout << std::endl;
-  CGAL::random_polygon_2(point_set.size(), std::back_inserter(polygon),
-                         point_set.begin());
-  std::cout << "The following simple polygon was made: " << std::endl;
-  std::cout << polygon << std::endl;
-
-  //CGAL::draw(polygon);
-  return polygon;
-}
-
-std::list<Point_2> getRandomPoints(const Polygon_2& containingPolygon, const int& nmbrPoints) {
-  Bbox_2 bbox = containingPolygon.bbox();
-  std::list<Point_2>   point_set;
-  CGAL::Random         rand;
-  for (int i = 0; i < nmbrPoints; i++)
-  {
-    //K::FT randomX = bbox.xmin() + static_cast<K::FT>(std::rand()) / RAND_MAX * (bbox.xmax() - bbox.xmin());
-    //K::FT randomY = bbox.ymin() + static_cast<K::FT>(std::rand()) / RAND_MAX * (bbox.ymax() - bbox.ymin());
-
-    K::FT randomX = rand.get_double(bbox.xmin(), bbox.xmax());
-    K::FT randomY = rand.get_double(bbox.ymin(), bbox.ymax());
-
-    Point_2 randomPoint = Point_2(randomX, randomY);
-    if (CGAL::bounded_side_2(containingPolygon.vertices_begin(), containingPolygon.vertices_end(), randomPoint, K()) == CGAL::ON_BOUNDED_SIDE)
-    {
-      point_set.push_back(randomPoint);
-    }
-  }
-  return point_set;
-}
-
-std::vector<Point_2> getRandomPointDistribution(const int& nmbrOfSections, const int& nmbrPoints) {
-
-}
+class WorkspaceGenarator;
 
 Polygon_2 generateBoundingBox(const Bbox_2& bbox) {
   //Bbox_2 bbox = polygon.bbox();
@@ -154,8 +91,8 @@ Pwh_list_2 getFreeSpacePolygon(const Polygon_2& boundingBox, const Polygon_wh_2&
 
 int main()
 {
-
-  Polygon_2 workspacePolygon = generateRandomPolygon();
+  //Polygon_2 workspacePolygon = generateRandomPolygon();
+  Polygon_2 workspacePolygon = WorkspaceGenerator::generateRandomPolygon(MAX_POLY_SIZE, RADIUS);
 
   // Create a bounding box that covers the entire plane
   Polygon_2 boundingBox = generateBoundingBox(workspacePolygon.bbox());

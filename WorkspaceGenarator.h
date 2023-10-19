@@ -8,38 +8,22 @@
 
 #include "RandomGenerator.h"
 #include <CGAL/Exact_predicates_exact_constructions_kernel.h>
-#include <CGAL/Polygon_2.h>
 #include <CGAL/point_generators_2.h>
 #include <list>
 #include <vector>
+#include "mytypedefs.h"
 
 
 class WorkspaceGenerator {
 public:
-  typedef CGAL::Exact_predicates_exact_constructions_kernel K;
-  typedef K::Point_2 Point_2;
-  typedef std::list<Point_2> Container;
-  typedef CGAL::Polygon_2<K, Container> Polygon_2;
-  typedef CGAL::Creator_uniform_2<int, Point_2>             Creator;
   typedef CGAL::Random_points_in_square_2<Point_2, Creator> Point_generator;
-
-//  const double RADIUS;
-//  const int MAX_POLY_SIZE;
-//
-//  const int OBSTACLE_OFFSET;
-//  const int ROBOT_SIZE;
-//
-//  const int NMBR_START_POS;
-//  const int WORKSPACE_COMPLEXITY;
 
   WorkspaceGenerator();
 
-  static Polygon_2 generateRandomPolygon(int maxPoints, int maxDistanceFromOrigin);
-  std::list<Point_2> getRandomPoints(const Polygon_2& containingPolygon, const int& nmbrPoints);
-  std::vector<Point_2> getRandomPointDistribution(const int& nmbrOfSections, const int& nmbrPoints);
+  static Polygon_2 generateRandomPolygon(const int& maxPoints, const int& maxDistanceFromOrigin);
+  static std::list<Point_2> getRandomPoints(const Polygon_2& containingPolygon, const int& nmbrPoints);
+  static std::vector<int> getRandomPointDistribution(const int& nmbrOfSections, const int& nmbrPoints);
 
-private:
-  static RandomGenerator randomGenerator;
 };
 
 
