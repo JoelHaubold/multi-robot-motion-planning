@@ -15,3 +15,7 @@ int RandomGenerator::getRandomInt(int min, int max) {
 double RandomGenerator::getRandomDouble(double min, double max) {
   return cgalRandom.get_double(min, max);
 }
+bool RandomGenerator::getRandomBoolean()
+{
+    return cgalRandom.get_bool();
+}

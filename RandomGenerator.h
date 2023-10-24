@@ -13,6 +13,7 @@ public:
   RandomGenerator();
   static int getRandomInt(int min, int max);
   static double getRandomDouble(double min, double max);
+  static bool getRandomBoolean();
 
 private:
   static CGAL::Random cgalRandom;

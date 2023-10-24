@@ -4,12 +4,12 @@ project(mrmp_implementation)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(mrmp_implementation main.cpp RandomGenerator.cpp RandomGenerator.h WorkspaceGenarator.cpp WorkspaceGenarator.h WSFreeSpaceGenerator.cpp WSFreeSpaceGenerator.h mytypedefs.h constants.h)
+add_executable(mrmp_implementation main.cpp RandomGenerator.cpp RandomGenerator.h WorkspaceGenarator.cpp WorkspaceGenarator.h WellSeparatedSolver/WSFreeSpaceGenerator.cpp WellSeparatedSolver/WSFreeSpaceGenerator.h mytypedefs.h constants.h Utils/Utils.cpp Utils/Utils.h WellSeparatedSolver/WSMotionGraphGenerator.cpp WellSeparatedSolver/WSMotionGraphGenerator.h Utils/DrawUtils.cpp Utils/DrawUtils.h)
 
-#include(C:/Users/joelh/Documents/CppStuff/vcpkg/scripts/buildsystems/vcpkg.cmake)
+include(C:/Users/joelh/Documents/CppStuff/vcpkg/scripts/buildsystems/vcpkg.cmake)
 
 set(CMAKE_AUTOMOC ON)
-#set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
 #find_package(Qt5 REQUIRED)
