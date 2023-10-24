@@ -10,6 +10,7 @@
 #include <CGAL/Polygon_with_holes_2.h>
 #include <CGAL/Polygon_set_2.h>
 #include <boost/graph/adjacency_list.hpp>
+#include <utility>
 
 
 
@@ -56,5 +57,31 @@ typedef boost::adjacency_list<
     MGEdgeProperty               // Property for edges
     >                                                     Motion_Graph;
 typedef boost::graph_traits<Motion_Graph>::vertex_descriptor    Vertex;
+
+struct FreeSpaceComponent {
+    FreeSpaceComponent(Polygon_2  fsComp, std::string  id)
+        : freeSpaceComponent(std::move(fsComp)), freeSpaceId(std::move(id)) {
+    }
+
+    const Polygon_2 freeSpaceComponent;
+    std::vector<Point_2> startConfigurations;
+    std::vector<Point_2> targetConfigurations;
+    const std::string freeSpaceId;
+};
+
+struct FStarComponent {
+    FStarComponent(Polygon_wh_2 fStarPoly, std::vector<Point_2> adjSConfs, std::vector<Point_2> adjTConfs, std::string fStarId, const FreeSpaceComponent &parent)
+        : fStarPolygon(std::move(fStarPoly)), adjacentSConfs(std::move(adjSConfs)), adjacentTConfs(std::move(adjTConfs)), fStarId(std::move(fStarId)), parent(parent) {}
+
+//    FStarComponent(Polygon_wh_2 fStarPoly, std::string fStarId)
+//        : fStarPolygon(std::move(fStarPoly)), fStarId(std::move(fStarId))) {}
+
+    const Polygon_wh_2 fStarPolygon;
+    const std::string fStarId;
+
+    const FreeSpaceComponent& parent;
+    const std::vector<Point_2> adjacentSConfs;
+    const std::vector<Point_2> adjacentTConfs;
+};
 
 #endif//MRMP_IMPLEMENTATION_MYTYPEDEFS_H

@@ -13,17 +13,20 @@
 
 //TODO: Rename to ~RequirementsGenerator
 class WorkspaceGenerator {
-public:
+
     typedef CGAL::Random_points_in_square_2<Point_2, Creator> Point_generator;
 
-    WorkspaceGenerator();
+public:
+
+    struct STConfigurations {
+        std::vector<Point_2> startConfigurations;
+        std::vector<Point_2> targetConfigurations;
+    };
 
     static Polygon_2 generateRandomPolygon();
-    static std::list<Point_2> getRandomPoints(const Polygon_2& containingPolygon, const int& nmbrPoints);
-    static std::vector<int> getRandomPointDistribution(const int& nmbrOfSections, const int& nmbrPoints);
+    static WorkspaceGenerator::STConfigurations getStartAndTargetConfigurations(const std::vector<FreeSpaceComponent>& containingPolygons);
 
-    static void getStartAndTargetConfigurations(const std::vector<Polygon_2>& containingPolygons, std::vector<Point_2>& startConfs, std::vector<Point_2>& targetConfs);
-    static std::list<Point_2> getRandomPoints(const std::vector<Polygon_2>& containingPolygons);
+
 
   private:
     static Point_2 getRandomPoint(double xmin, double xmax, double ymin, double ymax);

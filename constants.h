@@ -22,6 +22,9 @@ const bool USE_WS = true;
 const double MONOCHROMATIC_SEPARATION = 4.0;
 const double BICHROMATIC_SEPARATION = 4.0;
 
+const std::string FREE_SPACE_PREFIX = "F";
+const std::string F_STAR_PREFIX = "F*";
+
 
 
 
