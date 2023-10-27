@@ -11,53 +11,51 @@
 #include <algorithm>
 #include <boost/graph/adjacency_list.hpp>
 
-//TODO: Take List of struct of F component and list of associated F* components
-void WSMotionGraphGenerator::fillMotionGraph(Motion_Graph& motionGraph, const Polygon_set_2 &fStarSet, const std::vector<Point_2>& startConfs, const std::vector<Point_2>& targetConfs)//, const Polygon_2& freeSpaceSet)
+void WSMotionGraphGenerator::insertVertices(Motion_Graph &motionGraph, const STConfigurations &stConfigurations)
 {
-    std::for_each(startConfs.begin(), startConfs.end(), [&motionGraph](const Point_2& startConf) {
+    std::for_each(stConfigurations.startConfigurations.begin(), stConfigurations.startConfigurations.end(), [&motionGraph](const auto& startConf) {
         //Motion_Graph::vertex_descriptor vd = boost::add_vertex(motionGraph);
-        boost::add_vertex(MGVertexProperty{startConf, true}, motionGraph);
+        boost::add_vertex(MGVertexProperty{startConf.id,startConf.location, true}, motionGraph);
     });
-    std::for_each(targetConfs.begin(), targetConfs.end(), [&motionGraph](const Point_2& targetConf) {
+    std::for_each(stConfigurations.targetConfigurations.begin(), stConfigurations.targetConfigurations.end(), [&motionGraph](const auto& targetConf) {
         //Motion_Graph::vertex_descriptor vd = boost::add_vertex(motionGraph);
-        boost::add_vertex(MGVertexProperty{targetConf, false}, motionGraph);
+        boost::add_vertex(MGVertexProperty{targetConf.id,targetConf.location, false}, motionGraph);
     });
+}
 
-    std::vector<Polygon_wh_2> individualPolygons;
-    fStarSet.polygons_with_holes(std::back_inserter(individualPolygons));
-
-    boost::graph_traits<Motion_Graph>::vertex_iterator vi, vi_end;
-
-    for (const auto& poly_with_holes : individualPolygons) {
-
-        std::vector<Vertex> relevantVertices;
-        for (boost::tie(vi, vi_end) = vertices(motionGraph); vi != vi_end; ++vi) {
-            Vertex currentVertex = *vi;
-            MGVertexProperty vertex = motionGraph[currentVertex];
-            Polygon_wh_2 result;
-            bool doesIntersect = CGAL::join(poly_with_holes, Utils::generateRobotAura(vertex.location, 2), result);
-            if(doesIntersect) {
-                relevantVertices.push_back(currentVertex);
-            }
-        }
-
-
-        //        for (const auto& startAura : startConfs)
-        //        {
-        //            //bool doesIntersect = CGAL::do_intersect(poly_with_holes, Utils::generateRobotAura(startAura, 2.1));
-        //            Polygon_wh_2 result;
-        //            bool doesIntersect = CGAL::join(poly_with_holes, Utils::generateRobotAura(startAura, 2), result);
-        //            std::cout << doesIntersect << std::endl;
-        //        }
-        //        for (const auto& targetAura : targetConfs)
-        //        {
-        //            //bool doesIntersect = CGAL::do_intersect(poly_with_holes, Utils::generateRobotAura(targetAura, 2.1));
-        //            Polygon_wh_2 result;
-        //            bool doesIntersect = CGAL::join(poly_with_holes, Utils::generateRobotAura(targetAura, 2), result);
-        //            std::cout << doesIntersect << std::endl;
-        //        }
-        getMGForFStarComponent(motionGraph, poly_with_holes, relevantVertices);
-    }
+//TODO: Take List of struct of F component and list of associated F* components
+void WSMotionGraphGenerator::fillMotionGraph(Motion_Graph& motionGraph, const std::vector<FStarComponent>& fStarComponents)//, const Polygon_2& freeSpaceSet)
+{
+//    for(const auto& fStarComponent : fStarComponents) {
+//
+//        std::vector<Vertex> relevantVertices;
+//        for (boost::tie(vi, vi_end) = vertices(motionGraph); vi != vi_end; ++vi) {
+//            Vertex currentVertex = *vi;
+//            MGVertexProperty vertex = motionGraph[currentVertex];
+//            Polygon_wh_2 result;
+//            bool doesIntersect = CGAL::join(poly_with_holes, Utils::generateRobotAura(vertex.location), result);
+//            if(doesIntersect) {
+//                relevantVertices.push_back(currentVertex);
+//            }
+//        }
+//
+//
+//        //        for (const auto& startAura : startConfs)
+//        //        {
+//        //            //bool doesIntersect = CGAL::do_intersect(poly_with_holes, Utils::generateRobotAura(startAura, 2.1));
+//        //            Polygon_wh_2 result;
+//        //            bool doesIntersect = CGAL::join(poly_with_holes, Utils::generateRobotAura(startAura, 2), result);
+//        //            std::cout << doesIntersect << std::endl;
+//        //        }
+//        //        for (const auto& targetAura : targetConfs)
+//        //        {
+//        //            //bool doesIntersect = CGAL::do_intersect(poly_with_holes, Utils::generateRobotAura(targetAura, 2.1));
+//        //            Polygon_wh_2 result;
+//        //            bool doesIntersect = CGAL::join(poly_with_holes, Utils::generateRobotAura(targetAura, 2), result);
+//        //            std::cout << doesIntersect << std::endl;
+//        //        }
+//        getMGForFStarComponent(motionGraph, poly_with_holes, relevantVertices);
+//    }
 
 }
 
@@ -175,3 +173,4 @@ MGEdgeProperty WSMotionGraphGenerator::getRayEdgeProperty(const Point_2& rayShoo
     //    Segment_2 raySegment();
     return MGEdgeProperty{std::vector<Segment_2>()};
 }
+

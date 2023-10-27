@@ -4,7 +4,11 @@ project(mrmp_implementation)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(mrmp_implementation main.cpp RandomGenerator.cpp RandomGenerator.h WorkspaceGenarator.cpp WorkspaceGenarator.h WellSeparatedSolver/WSFreeSpaceGenerator.cpp WellSeparatedSolver/WSFreeSpaceGenerator.h mytypedefs.h constants.h Utils/Utils.cpp Utils/Utils.h WellSeparatedSolver/WSMotionGraphGenerator.cpp WellSeparatedSolver/WSMotionGraphGenerator.h Utils/DrawUtils.cpp Utils/DrawUtils.h)
+add_executable(mrmp_implementation main.cpp RandomGenerator.cpp RandomGenerator.h WorkspaceGenarator.cpp WorkspaceGenarator.h WellSeparatedSolver/WSFreeSpaceGenerator.cpp WellSeparatedSolver/WSFreeSpaceGenerator.h mytypedefs.h constants.h Utils/Utils.cpp Utils/Utils.h WellSeparatedSolver/WSMotionGraphGenerator.cpp WellSeparatedSolver/WSMotionGraphGenerator.h
+        Utils/SFMLDrawUtils.cpp
+        Utils/SFMLDrawUtils.h
+        Utils/GraphvizDrawUtils.cpp
+        Utils/GraphvizDrawUtils.h)
 
 include(C:/Users/joelh/Documents/CppStuff/vcpkg/scripts/buildsystems/vcpkg.cmake)
 
@@ -24,6 +28,7 @@ find_package(Qt5 REQUIRED
         Gui
         Widgets
         )
+find_package(SFML COMPONENTS system window graphics CONFIG REQUIRED)
 
 pkg_check_modules(gmp REQUIRED IMPORTED_TARGET gmp)
 
@@ -32,3 +37,4 @@ target_link_libraries(mrmp_implementation CGAL::CGAL)
 target_link_libraries(mrmp_implementation Qt5::Widgets)
 target_link_libraries(mrmp_implementation CGAL::CGAL_Qt5)
 target_link_libraries(mrmp_implementation CGAL::CGAL_Basic_viewer)
+target_link_libraries(mrmp_implementation sfml-system sfml-graphics sfml-window)#sfml-network

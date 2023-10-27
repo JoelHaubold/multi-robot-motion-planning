@@ -18,13 +18,8 @@ class WorkspaceGenerator {
 
 public:
 
-    struct STConfigurations {
-        std::vector<Point_2> startConfigurations;
-        std::vector<Point_2> targetConfigurations;
-    };
-
     static Polygon_2 generateRandomPolygon();
-    static WorkspaceGenerator::STConfigurations getStartAndTargetConfigurations(const std::vector<FreeSpaceComponent>& containingPolygons);
+    static STConfigurations getStartAndTargetConfigurations(const std::vector<FreeSpaceComponent>& containingPolygons);
 
 
 

@@ -14,7 +14,7 @@ class Utils
       static Polygon_2 generateRobot();
       static Polygon_2 generateRobotAura();
       static Polygon_2 generateRobotAura(const Point_2& center);
-      static Polygon_2 generateRobotAura(const Point_2& center, double sizeOfAura);
+      //static Polygon_2 generateRobotAura(const Point_2& center, double sizeOfAura);
 };
 
 

@@ -15,7 +15,7 @@
 
 
 
-typedef CGAL::Exact_predicates_exact_constructions_kernel K;
+typedef CGAL::Exact_predicates_exact_constructions_kernel K; // CGAL::Simple_cartesian<double>
 //typedef CGAL::Simple_cartesian<RT>                        K;
 typedef K::Point_2                                        Point_2;
 typedef K::Segment_2                                      Segment_2;
@@ -34,10 +34,10 @@ struct MGVertexProperty {
         : location(Point_2(0, 0)), isStartVertex(false), hasPebble(false) {
     }
 
-    MGVertexProperty(const Point_2 loc, const bool isStart)
-        : location(loc), isStartVertex(isStart) {
+    MGVertexProperty(const std::string id, const Point_2 loc, const bool isStart)
+        : id(id), location(loc), isStartVertex(isStart) {
     }
-    //const std::string id;
+    const std::string id;
     const Point_2 location;
     const bool isStartVertex;
     bool hasPebble = isStartVertex;
@@ -46,7 +46,7 @@ struct MGVertexProperty {
 // Define the MGEdgeProperty struct
 struct MGEdgeProperty {
     //PathtoTake
-    const std::vector<Segment_2> pathLineSegments;
+    std::vector<Segment_2> pathLineSegments;
 };
 
 typedef boost::adjacency_list<
@@ -58,19 +58,34 @@ typedef boost::adjacency_list<
     >                                                     Motion_Graph;
 typedef boost::graph_traits<Motion_Graph>::vertex_descriptor    Vertex;
 
+
+struct STConf {
+    STConf(Point_2 loc, std::string id)
+        : location(std::move(loc)), id(std::move(id)) {
+    }
+
+    const Point_2 location;
+    const std::string id;
+};
+
+struct STConfigurations {
+    const std::vector<STConf> startConfigurations;
+    const std::vector<STConf> targetConfigurations;
+};
+
 struct FreeSpaceComponent {
     FreeSpaceComponent(Polygon_2  fsComp, std::string  id)
         : freeSpaceComponent(std::move(fsComp)), freeSpaceId(std::move(id)) {
     }
 
     const Polygon_2 freeSpaceComponent;
-    std::vector<Point_2> startConfigurations;
-    std::vector<Point_2> targetConfigurations;
+    std::vector<STConf> startConfigurations;
+    std::vector<STConf> targetConfigurations;
     const std::string freeSpaceId;
 };
 
 struct FStarComponent {
-    FStarComponent(Polygon_wh_2 fStarPoly, std::vector<Point_2> adjSConfs, std::vector<Point_2> adjTConfs, std::string fStarId, const FreeSpaceComponent &parent)
+    FStarComponent(Polygon_wh_2 fStarPoly, std::vector<STConf> adjSConfs, std::vector<STConf> adjTConfs, std::string fStarId, const FreeSpaceComponent &parent)
         : fStarPolygon(std::move(fStarPoly)), adjacentSConfs(std::move(adjSConfs)), adjacentTConfs(std::move(adjTConfs)), fStarId(std::move(fStarId)), parent(parent) {}
 
 //    FStarComponent(Polygon_wh_2 fStarPoly, std::string fStarId)
@@ -80,8 +95,8 @@ struct FStarComponent {
     const std::string fStarId;
 
     const FreeSpaceComponent& parent;
-    const std::vector<Point_2> adjacentSConfs;
-    const std::vector<Point_2> adjacentTConfs;
+    const std::vector<STConf> adjacentSConfs;
+    const std::vector<STConf> adjacentTConfs;
 };
 
 #endif//MRMP_IMPLEMENTATION_MYTYPEDEFS_H

@@ -62,16 +62,16 @@ Polygon_2 Utils::generateRobotAura(const Point_2& center) {
     return robot;
 }
 
-Polygon_2 Utils::generateRobotAura(const Point_2& center, double sizeOfAura) {
-    auto xc = center.x();
-    auto yc = center.y();
-
-
-    Polygon_2 robot;
-    robot.push_back(Point_2(xc-sizeOfAura, yc-sizeOfAura));
-    robot.push_back(Point_2(xc+sizeOfAura, yc-sizeOfAura));
-    robot.push_back(Point_2(xc+sizeOfAura, yc+sizeOfAura));
-    robot.push_back(Point_2(xc-sizeOfAura, yc+sizeOfAura));
-
-    return robot;
-}
+//Polygon_2 Utils::generateRobotAura(const Point_2& center, double sizeOfAura) {
+//    auto xc = center.x();
+//    auto yc = center.y();
+//
+//
+//    Polygon_2 robot;
+//    robot.push_back(Point_2(xc-sizeOfAura, yc-sizeOfAura));
+//    robot.push_back(Point_2(xc+sizeOfAura, yc-sizeOfAura));
+//    robot.push_back(Point_2(xc+sizeOfAura, yc+sizeOfAura));
+//    robot.push_back(Point_2(xc-sizeOfAura, yc+sizeOfAura));
+//
+//    return robot;
+//}

@@ -12,7 +12,7 @@ const int OBSTACLE_OFFSET = 5;
 const int ROBOT_SIZE = 2;
 
 const int NMBR_START_POS = 10;
-const int WORKSPACE_COMPLEXITY = 50;
+const int WORKSPACE_COMPLEXITY = 50; //TODO: Replace poly size with this
 
 const int NMBR_POINT_TRIES = 10000;
 const int NMBR_PAIR_POINT_TRIES = 100;
@@ -24,6 +24,8 @@ const double BICHROMATIC_SEPARATION = 4.0;
 
 const std::string FREE_SPACE_PREFIX = "F";
 const std::string F_STAR_PREFIX = "F*";
+const std::string START_CONF_PREFIX = "S";
+const std::string TARGET_CONF_PREFIX = "T";
 
 
 

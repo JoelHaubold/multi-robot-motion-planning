@@ -1,7 +1,11 @@
 #include "WellSeparatedSolver/WSFreeSpaceGenerator.h"
+#include "WellSeparatedSolver/WSMotionGraphGenerator.h"
 #include "WorkspaceGenarator.h"
 #include "mytypedefs.h"
-#include <CGAL/draw_polygon_set_2.h>
+//#include <CGAL/draw_polygon_2.h>
+//#include <CGAL/draw_polygon_set_2.h>
+#include "Utils/SFMLDrawUtils.h"
+#include "Utils/GraphvizDrawUtils.h"
 //#include "DrawUtils.h"
 //#include <QApplication>
 
@@ -38,11 +42,14 @@ int main(int argc, char *argv[])
 //    QApplication app(argc, argv);
 
     Polygon_2 workspacePolygon = WorkspaceGenerator::generateRandomPolygon();
+//    CGAL::draw(workspacePolygon);
+//    SFMLDrawUtils::drawPolygon_2(workspacePolygon, "workspace");
 
     //DrawUtils::drawPolygon(workspacePolygon);
-    std::cout << "FC:" << std::endl;
+//    std::cout << "FC:" << std::endl;
     std::vector<FreeSpaceComponent> freeSpaceComponents = WSFreeSpaceGenerator::getFreeSpaceComponents(workspacePolygon);
-    std::cout << "FCE:" << std::endl;
+//    SFMLDrawUtils::drawFreeSpace(freeSpaceComponents, "freeSpace");
+//    std::cout << "FCE:" << std::endl;
 //    std::for_each(freeSpaceSegments.begin(), freeSpaceSegments.end(), [&freeSpaceSet](Polygon_2 poly){
 //                      poly.reverse_orientation();
 //                      freeSpaceSet.insert(poly);
@@ -52,12 +59,26 @@ int main(int argc, char *argv[])
 
     //CGAL::draw(free_space_complement_polygon*);
 
-    WorkspaceGenerator::STConfigurations stConfigurations = WorkspaceGenerator::getStartAndTargetConfigurations(freeSpaceComponents);
+    STConfigurations stConfigurations = WorkspaceGenerator::getStartAndTargetConfigurations(freeSpaceComponents);
     WSFreeSpaceGenerator::associateSTConfs(freeSpaceComponents, stConfigurations.startConfigurations, stConfigurations.targetConfigurations);
     std::vector<FStarComponent> fStarSet = WSFreeSpaceGenerator::getFStar2(freeSpaceComponents);
+//    Polygon_set_2 set;
+//    for(const auto& fs : fStarSet) {
+//        set.insert(fs.fStarPolygon);
+//    }
+//
+//    CGAL::draw(set);
+
+    SFMLDrawUtils::drawFStar(fStarSet, "fStar");
 
     //WSFreeSpaceGenerator::associateSTConfs(freeSpaceComponents, fStarSet, stConfigurations.startConfigurations, stConfigurations.targetConfigurations);
     //WSFreeSpaceGenerator::getMotionGraph(fStarSet, startConfs, targetConfs);
+
+    Motion_Graph motionGraph;
+    WSMotionGraphGenerator::insertVertices(motionGraph, stConfigurations);
+
+
+    GraphvizDrawUtils::drawMotionGraph(motionGraph);
 
 /*
  * Motion graph:

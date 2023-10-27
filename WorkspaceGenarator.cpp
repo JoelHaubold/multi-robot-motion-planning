@@ -103,7 +103,7 @@ Polygon_2 WorkspaceGenerator::generateRandomPolygon() {
 
 
 
-WorkspaceGenerator::STConfigurations WorkspaceGenerator::getStartAndTargetConfigurations(const std::vector<FreeSpaceComponent>& containingPolygons) {
+STConfigurations WorkspaceGenerator::getStartAndTargetConfigurations(const std::vector<FreeSpaceComponent>& containingPolygons) {
     //  std::vector<std::vector<Point_2>> startConfsPerComponent;
     //  std::vector<std::vector<Point_2>> targetConfsPerComponent;
     //
@@ -176,10 +176,19 @@ WorkspaceGenerator::STConfigurations WorkspaceGenerator::getStartAndTargetConfig
     }
     std::cout << "Generated " << pointsGenerated << " points for " << NMBR_START_POS*2 << " points"
               << std::endl;
-    WorkspaceGenerator::STConfigurations stconfs;
-    stconfs.startConfigurations = startConfsGenerated;
-    stconfs.targetConfigurations = targetConfsGenerated;
-    return stconfs;
+    STConfigurations stconfs;
+
+    int conf_nmbr = 1;
+    std::vector<STConf> startConfs;
+    std::vector<STConf> targetConfs;
+    for(const Point_2& sConf : startConfsGenerated) {
+        startConfs.emplace_back(sConf, START_CONF_PREFIX+ std::to_string(conf_nmbr++));
+    }
+    conf_nmbr = 1;
+    for(const Point_2& tConf : targetConfsGenerated) {
+        targetConfs.emplace_back(tConf, TARGET_CONF_PREFIX+ std::to_string(conf_nmbr++));
+    }
+    return STConfigurations{startConfs, targetConfs};
 }
 
 Point_2 WorkspaceGenerator::getRandomPoint(double xmin, double xmax, double ymin, double ymax) {

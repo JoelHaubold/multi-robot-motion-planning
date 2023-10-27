@@ -10,7 +10,8 @@
 class WSMotionGraphGenerator
 {
 public:
-    static void WSMotionGraphGenerator::fillMotionGraph(Motion_Graph& motionGraph, const Polygon_set_2 &fStarSet, const std::vector<Point_2>& startConfs, const std::vector<Point_2>& targetConfs);
+    static void WSMotionGraphGenerator::fillMotionGraph(Motion_Graph& motionGraph, const std::vector<FStarComponent>& fStarComponents);
+    static void WSMotionGraphGenerator::insertVertices(Motion_Graph& motionGraph, const STConfigurations& stConfigurations);
 
 private:
     static void getMGForFStarComponent(Motion_Graph& motionGraph, const Polygon_wh_2 &fStarSet, const std::vector<Vertex>& relevantVertices);
