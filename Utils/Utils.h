@@ -15,6 +15,7 @@ class Utils
       static Polygon_2 generateRobotAura();
       static Polygon_2 generateRobotAura(const Point_2& center);
       //static Polygon_2 generateRobotAura(const Point_2& center, double sizeOfAura);
+      static Point_2 getLowestIntersectionPoint(const Segment_2& verticalRay, const Polygon_2& polyToIntersect);
 };
 
 

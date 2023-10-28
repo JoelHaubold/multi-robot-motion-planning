@@ -3,7 +3,7 @@
 #include "WorkspaceGenarator.h"
 #include "mytypedefs.h"
 //#include <CGAL/draw_polygon_2.h>
-//#include <CGAL/draw_polygon_set_2.h>
+#include <CGAL/draw_polygon_set_2.h>
 #include "Utils/SFMLDrawUtils.h"
 #include "Utils/GraphvizDrawUtils.h"
 //#include "DrawUtils.h"
@@ -62,12 +62,12 @@ int main(int argc, char *argv[])
     STConfigurations stConfigurations = WorkspaceGenerator::getStartAndTargetConfigurations(freeSpaceComponents);
     WSFreeSpaceGenerator::associateSTConfs(freeSpaceComponents, stConfigurations.startConfigurations, stConfigurations.targetConfigurations);
     std::vector<FStarComponent> fStarSet = WSFreeSpaceGenerator::getFStar2(freeSpaceComponents);
-//    Polygon_set_2 set;
-//    for(const auto& fs : fStarSet) {
-//        set.insert(fs.fStarPolygon);
-//    }
-//
-//    CGAL::draw(set);
+    Polygon_set_2 set;
+    for(const auto& fs : fStarSet) {
+        set.insert(fs.fStarPolygon);
+    }
+
+    CGAL::draw(set);
 
     SFMLDrawUtils::drawFStar(fStarSet, "fStar");
 
@@ -75,8 +75,8 @@ int main(int argc, char *argv[])
     //WSFreeSpaceGenerator::getMotionGraph(fStarSet, startConfs, targetConfs);
 
     Motion_Graph motionGraph;
-    WSMotionGraphGenerator::insertVertices(motionGraph, stConfigurations);
-
+    const MGIdToVertex id2Vertex = WSMotionGraphGenerator::insertVertices(motionGraph, stConfigurations);
+    WSMotionGraphGenerator::insertEdges(motionGraph, fStarSet, id2Vertex);
 
     GraphvizDrawUtils::drawMotionGraph(motionGraph);
 

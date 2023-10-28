@@ -57,6 +57,7 @@ typedef boost::adjacency_list<
     MGEdgeProperty               // Property for edges
     >                                                     Motion_Graph;
 typedef boost::graph_traits<Motion_Graph>::vertex_descriptor    Vertex;
+typedef std::unordered_map<std::string, Vertex>           MGIdToVertex;
 
 
 struct STConf {

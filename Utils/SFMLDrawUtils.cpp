@@ -224,7 +224,7 @@ sf::Text SFMLDrawUtils::getText(const Point_2& location, const std::string& text
 
 sf::Vector2f SFMLDrawUtils::getUpscaledVector(const Point_2& location) {
 //    std::cout << "Translating:" << location.x()*UPSCALE_FACTOR << ","<< location.y()*UPSCALE_FACTOR<< std::endl;
-    sf::Vector2f sfVector(CGAL::to_double(location.x()*UPSCALE_FACTOR), CGAL::to_double(location.y()*UPSCALE_FACTOR));
+    sf::Vector2f sfVector(CGAL::to_double(location.x()*UPSCALE_FACTOR), -CGAL::to_double(location.y()*UPSCALE_FACTOR)); //Invert y-axis (SFML y-axis is oriented downwards)
 //    std::cout << "To:" << sfVector.x << "," << sfVector.y<< std::endl;
 //    sf::Vector2f sfVector2(CGAL::to_double(location.x())*UPSCALE_FACTOR, CGAL::to_double(location.y())*UPSCALE_FACTOR);
 //    std::cout << "ToAlt:" << sfVector2.x << "," << sfVector2.y<< std::endl;

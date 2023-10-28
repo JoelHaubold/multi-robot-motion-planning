@@ -4,6 +4,7 @@
 
 #include "Utils.h"
 #include "../constants.h"
+#include <boost/optional.hpp>
 
 Polygon_2 Utils::generateBoundingBox(const CGAL::Bbox_2& bbox) {
     //Bbox_2 bbox = polygon.bbox();
@@ -60,6 +61,28 @@ Polygon_2 Utils::generateRobotAura(const Point_2& center) {
     robot.push_back(Point_2(xc-ROBOT_SIZE, yc+ROBOT_SIZE));
 
     return robot;
+}
+
+Point_2 Utils::getLowestIntersectionPoint(const Segment_2& verticalRay, const Polygon_2& polyToIntersect) {
+    Point_2 lowestPoint = verticalRay.target();
+    for(const auto& edge : polyToIntersect.edges()) {
+        Segment_2 es = edge;
+        const auto result = CGAL::intersection(verticalRay, edge);
+        if(!result) {
+            continue;
+        }
+        if (const Segment_2* s = boost::get<Segment_2>(&*result)) {
+            if(s->source().y() < lowestPoint.y() || s->target().y() < lowestPoint.y()) {
+                lowestPoint = s->source().y() < s->target().y() ? s->source() : s->target();
+            }
+        } else {
+            const Point_2* p = boost::get<Point_2 >(&*result);
+            if(p->y() < lowestPoint.y()) {
+                lowestPoint = *p;
+            }
+        }
+    }
+    return lowestPoint;
 }
 
 //Polygon_2 Utils::generateRobotAura(const Point_2& center, double sizeOfAura) {
