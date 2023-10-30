@@ -3,11 +3,15 @@
 //
 
 #include "SFMLDrawUtils.h"
+#include "../constants.h"
 #include "../mytypedefs.h"
 #include "Utils.h"
-#include "../constants.h"
+#include <QtMath>
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/graph_traits.hpp>
+#include <cmath>
 
-static const int UPSCALE_FACTOR = 6;
+static const int UPSCALE_FACTOR = 8;
 static const double BORDER_FACTOR = 1.3;
 static sf::Font font;
 static bool loadedFont;
@@ -106,23 +110,25 @@ void SFMLDrawUtils::drawFStar(const std::vector<FStarComponent> &toDraw, const s
     int width = (xmax-xmin)*UPSCALE_FACTOR*BORDER_FACTOR;
     int height = (ymax-ymin)*UPSCALE_FACTOR*BORDER_FACTOR;
 
-    sf::RenderWindow window(sf::VideoMode(width, height), name);
+    sf::ContextSettings settings;
+    settings.antialiasingLevel = 8;
+    sf::RenderWindow window(sf::VideoMode(width, height), name, sf::Style::Default, settings);
     window.clear(sf::Color::White);
 
     for (const auto& fComponent : toDraw)
     {
         sf::ConvexShape polygon = getSFPolygon(fComponent.fStarPolygon.outer_boundary(), width, height);
-        for(const Polygon_2& poly :fComponent.fStarPolygon.holes()) {
-            const K::FT xV = (poly.vertex(0).x() + poly.vertex(1).x() + poly.vertex(2).x() + poly.vertex(3).x())/4;
-            const K::FT yV = (poly.vertex(0).y() + poly.vertex(1).y() + poly.vertex(2).y() + poly.vertex(3).y())/4;
-            std::cout << "Poly: " << xV <<"," << yV << std::endl;
-        }
-        for(const STConf& stconf: fComponent.adjacentSConfs) {
-            std::cout << "S: " << stconf.location.x() <<"," << stconf.location.y() << std::endl;
-        }
-        for(const STConf& stconf: fComponent.adjacentTConfs) {
-            std::cout << "T: " << stconf.location.x() <<"," << stconf.location.y() << std::endl;
-        }
+//        for(const Polygon_2& poly :fComponent.fStarPolygon.holes()) {
+//            const K::FT xV = (poly.vertex(0).x() + poly.vertex(1).x() + poly.vertex(2).x() + poly.vertex(3).x())/4;
+//            const K::FT yV = (poly.vertex(0).y() + poly.vertex(1).y() + poly.vertex(2).y() + poly.vertex(3).y())/4;
+//            std::cout << "Poly: " << xV <<"," << yV << std::endl;
+//        }
+//        for(const STConf& stconf: fComponent.adjacentSConfs) {
+//            std::cout << "S: " << stconf.location.x() <<"," << stconf.location.y() << std::endl;
+//        }
+//        for(const STConf& stconf: fComponent.adjacentTConfs) {
+//            std::cout << "T: " << stconf.location.x() <<"," << stconf.location.y() << std::endl;
+//        }
 
         window.draw(polygon);
 
@@ -138,6 +144,119 @@ void SFMLDrawUtils::drawFStar(const std::vector<FStarComponent> &toDraw, const s
         }
 
     }
+
+
+
+    window.display();
+
+    displayWindow(window);
+}
+
+void SFMLDrawUtils::drawPaths(const std::vector<FStarComponent> &toDraw, const std::vector<MGEdgeProperty> &edges, const std::string &name)
+{
+    double xmin = 0.0;
+    double xmax = 0.0;
+    double ymin = 0.0;
+    double ymax = 0.0;
+    for (const auto& fComponent : toDraw) {
+        Bbox_2 bbox = fComponent.fStarPolygon.bbox();
+        if (bbox.xmin() < xmin) {
+            xmin = bbox.xmin();
+        }
+        if (bbox.xmax() > xmax) {
+            xmax = bbox.xmax();
+        }
+        if (bbox.ymin() < ymin) {
+            ymin = bbox.ymin();
+        }
+        if (bbox.ymax() > ymax) {
+            ymax = bbox.ymax();
+        }
+    }
+    int width = (xmax-xmin)*UPSCALE_FACTOR*BORDER_FACTOR;
+    int height = (ymax-ymin)*UPSCALE_FACTOR*BORDER_FACTOR;
+
+    sf::ContextSettings settings;
+    settings.antialiasingLevel = 8;
+    sf::RenderWindow window(sf::VideoMode(width, height), name, sf::Style::Default, settings);
+    window.clear(sf::Color::White);
+
+
+    for (const auto& fComponent : toDraw)
+    {
+        sf::ConvexShape polygon = getSFPolygon(fComponent.fStarPolygon.outer_boundary(), width, height);
+        window.draw(polygon);
+
+        for(const auto& sConf: fComponent.adjacentSConfs) {
+            window.draw(getCube(sConf, true, width, height));
+            window.draw(getText(sConf.location, sConf.id, width, height));
+            //window.draw(getText(sConf.location, sConf.id, width, height));
+        }
+
+        for(const auto& tConf: fComponent.adjacentTConfs) {
+            window.draw(getCube(tConf, false, width, height));
+            window.draw(getText(tConf.location, tConf.id, width, height));
+        }
+
+    }
+
+//    sf::VertexArray lines(sf::Lines);
+//    // Iterate through the edges and access their properties.
+//    for (; edgeIt != edgeEnd; ++edgeIt) {
+//        // Access the edge descriptor.
+//        auto edgeDescriptor = *edgeIt;
+//
+//        // Access the edge properties using the edge descriptor.
+//        MGEdgeProperty edgeProps = mg[edgeDescriptor];
+//        std::vector<Segment_2> edgePath = edgeProps.pathLineSegments;
+//        for(const auto& pathSegment : edgePath) {
+//            lines.append(sf::Vertex(getUpscaledOffsetVector(pathSegment.source(), width/2, height/2), sf::Color::Red));
+//            lines.append(sf::Vertex(getUpscaledOffsetVector(pathSegment.target(), width/2, height/2), sf::Color::Red));
+//
+//
+//        }
+//    }
+//    window.draw(lines);
+
+    for (const auto& edgeProps : edges) {
+        std::cout << "Drawing edge for: " << edgeProps.pathStartId<< std::endl;
+        std::vector<Segment_2> edgePath = edgeProps.pathLineSegments;
+        for(const auto& pathSegment : edgePath) {
+            sf::Vector2f point1 = getUpscaledVector(pathSegment.source());
+            sf::Vector2f point2 = getUpscaledVector(pathSegment.target());
+
+            sf::Vector2f direction = point2 - point1;
+            float rotation = std::atan2(direction.y, direction.x) * (180.0f / M_PI);
+            float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+
+            sf::RectangleShape line(sf::Vector2f(length, 2.0f));
+            line.setRotation(rotation);
+            line.setPosition(point1.x+width / 2, point1.y + height / 2);
+            line.setFillColor(sf::Color::Blue);
+
+            window.draw(line);
+        }
+    }
+
+//    for (; edgeIt != edgeEnd; ++edgeIt) {
+//        // Access the edge descriptor.
+//        auto edgeDescriptor = *edgeIt;
+//
+//        // Access the edge properties using the edge descriptor.
+//        MGEdgeProperty edgeProps = mg[edgeDescriptor];
+//        std::vector<Segment_2> edgePath = edgeProps.pathLineSegments;
+//        for(const auto& pathSegment : edgePath) {
+//            sf::ConvexShape line;
+//            line.setPointCount(2);
+//            line.setPoint(0, getUpscaledVector(pathSegment.source()));
+//            line.setPoint(1, getUpscaledVector(pathSegment.target()));
+//            line.setPosition(width / 2, height / 2);
+//            line.setOutlineThickness(5);
+//            line.setOutlineColor(sf::Color::Red);
+//            window.draw(line);
+//        }
+//    }
+
 
 
 
@@ -230,3 +349,9 @@ sf::Vector2f SFMLDrawUtils::getUpscaledVector(const Point_2& location) {
 //    std::cout << "ToAlt:" << sfVector2.x << "," << sfVector2.y<< std::endl;
     return sfVector;
 }
+
+sf::Vector2f SFMLDrawUtils::getUpscaledOffsetVector(const Point_2& location, const int xOffset, const int yOffset) {
+    sf::Vector2f sfVector(CGAL::to_double(location.x()*UPSCALE_FACTOR+ xOffset), -CGAL::to_double(location.y()*UPSCALE_FACTOR)+ yOffset);
+    return sfVector;
+}
+

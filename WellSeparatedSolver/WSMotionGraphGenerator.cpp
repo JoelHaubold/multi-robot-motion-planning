@@ -6,6 +6,7 @@
 #include "../Utils/Utils.h"
 #include "../constants.h"
 #include <CGAL/Boolean_set_operations_2.h>
+//#include "../Utils/SFMLDrawUtils.h"
 //#include <CGAL/Boolean_set_operations_2/join.h>
 #include <CGAL/intersections.h>
 #include <algorithm>
@@ -85,7 +86,7 @@ void WSMotionGraphGenerator::getMGForFStarComponent(Motion_Graph& motionGraph, c
             } else if(interceptingAuras.size() == 1) {
                 std::cout << "NonEmpty1" << std::endl;
                 MGEdgeProperty edgeProperty = getRayEdgeProperty(vertexLocation, vertexProps.id, motionGraph[interceptingAuras[0]].location, fStarComponent.parent.freeSpaceComponent);
-                boost::add_edge(relevantVertex, interceptingAuras[0], MGEdgeProperty{std::vector<Segment_2>()},motionGraph);
+                boost::add_edge(relevantVertex, interceptingAuras[0], edgeProperty,motionGraph);
             } else {
                 std::cout << "NonEmpty2" << std::endl;
                 std::sort(interceptingAuras.begin(), interceptingAuras.end(), [&motionGraph](const Vertex& v1, const Vertex& v2) {
@@ -107,12 +108,6 @@ void WSMotionGraphGenerator::getMGForFStarComponent(Motion_Graph& motionGraph, c
  *
  * Iterate through vertices. If we find repPoint add to vector
  */
-
-struct ListEdgeConstructionInfo {
-    Vertex connectToVertex;
-    RepPoint repPointOfVertex;
-    std::string id;
-};
 
 void WSMotionGraphGenerator::generateListEdges(Motion_Graph& motionGraph, const FStarComponent& fStarComp ,const std::list<Point_2>& vertices, const std::map<int, RepPoint>& polyVertex2RepPoint, const std::map<int, std::vector<RepPoint>>& polyVertex2RayRepPoints) {
 
@@ -185,19 +180,23 @@ void WSMotionGraphGenerator::generateListEdges(Motion_Graph& motionGraph, const 
 
     if(sortedRepPoints.size() == 2) {
         std::string vertex1Id = motionGraph[sortedRepPoints[0].forVertex].id;
-        MGEdgeProperty edgeProperty = getListEdgeProperty(vertex1Id, sortedRepPoints[0], sortedRepPoints[1], fStarComp.parent.freeSpaceComponent, fStarComp.fStarPolygon.outer_boundary());
+        MGEdgeProperty edgeProperty = getListEdgeProperty(motionGraph, sortedRepPoints[0], sortedRepPoints[1], fStarComp.parent.freeSpaceComponent, fStarComp.fStarPolygon.outer_boundary());
         boost::add_edge(sortedRepPoints[0].forVertex, sortedRepPoints[1].forVertex, edgeProperty,motionGraph);
         return;
     }
 
     for(int i = 1; i < sortedRepPoints.size(); i++) {
         std::string vertex1Id = motionGraph[sortedRepPoints[i-1].forVertex].id;
-        MGEdgeProperty edgeProperty = getListEdgeProperty(vertex1Id, sortedRepPoints[i-1], sortedRepPoints[i], fStarComp.parent.freeSpaceComponent, fStarComp.fStarPolygon.outer_boundary());
+        MGEdgeProperty edgeProperty = getListEdgeProperty(motionGraph, sortedRepPoints[i-1], sortedRepPoints[i], fStarComp.parent.freeSpaceComponent, fStarComp.fStarPolygon.outer_boundary());
         boost::add_edge(sortedRepPoints[i-1].forVertex, sortedRepPoints[i].forVertex, edgeProperty, motionGraph);
     }
     std::string vertex1Id = motionGraph[sortedRepPoints[0].forVertex].id;
-    MGEdgeProperty edgeProperty = getListEdgeProperty(vertex1Id, sortedRepPoints[0], sortedRepPoints[sortedRepPoints.size()-1], fStarComp.parent.freeSpaceComponent, fStarComp.fStarPolygon.outer_boundary());
-    boost::add_edge(sortedRepPoints[0].forVertex, sortedRepPoints[sortedRepPoints.size()-1].forVertex, edgeProperty,motionGraph);
+    std::cout << "Problem? " << vertex1Id << std::endl;
+    MGEdgeProperty edgeProperty = getListEdgeProperty(motionGraph, sortedRepPoints[sortedRepPoints.size()-1], sortedRepPoints[0], fStarComp.parent.freeSpaceComponent, fStarComp.fStarPolygon.outer_boundary());
+    boost::add_edge(sortedRepPoints[sortedRepPoints.size()-1].forVertex, sortedRepPoints[0].forVertex, edgeProperty,motionGraph);
+
+    //SFMLDrawUtils::drawPaths({fStarComp}, {edgeProperty}, "problemEdge");
+    //std::vector<Segment_2> efgr = motionGraph.
 }
 
 
@@ -284,11 +283,12 @@ RepPoint WSMotionGraphGenerator::getRayIntersectionWithFreeSpace(const Point_2& 
 
 //Vertex1 needs to be earlier in the polygon boundary than vertex2
 //MGEdgeProperty WSMotionGraphGenerator::getListEdgeProperty(const std::string& vertex1Id, const Point_2& vertex1, const Point_2& vertex2, const RepPoint& vertex1Rep, const RepPoint& vertex2Rep, const Polygon_2& freeSpaceBoundary, const Polygon_2& fStarBoundary) {
-MGEdgeProperty WSMotionGraphGenerator::getListEdgeProperty(const std::string& vertex1Id, const RepPoint& vertex1Rep, const RepPoint& vertex2Rep, const Polygon_2& freeSpaceBoundary, const Polygon_2& fStarBoundary) {
+MGEdgeProperty WSMotionGraphGenerator::getListEdgeProperty(const Motion_Graph& mg, const RepPoint& vertex1Rep, const RepPoint& vertex2Rep, const Polygon_2& freeSpaceBoundary, const Polygon_2& fStarBoundary) {
 
     std::vector<Segment_2> path;
-    Point_2 vertex1 = vertex1Rep.location;
-    Point_2 vertex2 = vertex2Rep.location;
+    const Point_2 vertex1 = mg[vertex1Rep.forVertex].location;
+    const Point_2 vertex2 = mg[vertex2Rep.forVertex].location;
+    const std::string vertex1Id = mg[vertex1Rep.forVertex].id;
 
     if((vertex1Rep.location.y()-vertex1.y()) > ROBOT_SIZE) {
         path.emplace_back(vertex1, vertex1Rep.location);
@@ -298,13 +298,29 @@ MGEdgeProperty WSMotionGraphGenerator::getListEdgeProperty(const std::string& ve
     }
 
     if(vertex1Rep.polyVertexNmbr == vertex2Rep.polyVertexNmbr) {
+        //Both representative points are on the same polygon edge
         path.emplace_back(vertex1Rep.location, vertex2Rep.location);
     } else {
-        path.emplace_back(vertex1Rep.location, fStarBoundary.vertex(vertex1Rep.polyVertexNmbr+1));
-        int currentVertex = vertex1Rep.polyVertexNmbr+1;
-        while(currentVertex < vertex2Rep.polyVertexNmbr) {
-            path.emplace_back(fStarBoundary.vertex(currentVertex),fStarBoundary.vertex(currentVertex+1));
-            currentVertex++;
+        int currentVertex;
+        if(vertex1Rep.polyVertexNmbr == fStarBoundary.size()-1) {
+            //Reached end of polygon
+            path.emplace_back(vertex1Rep.location, fStarBoundary.vertex(0));
+            currentVertex = 0;
+        } else {
+            //Go to next vertex
+            path.emplace_back(vertex1Rep.location, fStarBoundary.vertex(vertex1Rep.polyVertexNmbr+1));
+            currentVertex = vertex1Rep.polyVertexNmbr+1;
+        }
+        //Loop until vertex/ edge is found containing the vertex2 representative
+        while(currentVertex!=vertex2Rep.polyVertexNmbr) {
+            if(currentVertex == fStarBoundary.size()-1) {
+                //Reached end of polygon
+                path.emplace_back(fStarBoundary.vertex(currentVertex),fStarBoundary.vertex(0));
+                currentVertex = 0;
+            } else {
+                path.emplace_back(fStarBoundary.vertex(currentVertex),fStarBoundary.vertex(currentVertex+1));
+                currentVertex++;
+            }
         }
         if(fStarBoundary.vertex(currentVertex)!= vertex2Rep.location) {
             path.emplace_back(fStarBoundary.vertex(currentVertex), vertex2Rep.location);

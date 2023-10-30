@@ -80,6 +80,19 @@ int main(int argc, char *argv[])
 
     GraphvizDrawUtils::drawMotionGraph(motionGraph);
 
+    std::vector<MGEdgeProperty> edges;
+
+    auto edgePair = boost::edges(motionGraph);
+    auto edgeIt = edgePair.first;
+    auto edgeEnd = edgePair.second;
+    auto edgePropertyMap = boost::get(boost::edge_bundle, motionGraph);
+    for (; edgeIt != edgeEnd; ++edgeIt) {
+        edges.push_back(motionGraph[*edgeIt]);
+//        MGEdgeProperty edgeProperty = edgePropertyMap[edgePair.first];
+//        edges.push_back(motionGraph[edge_descriptor]);
+    }
+    SFMLDrawUtils::drawPaths(fStarSet, edges, "Paths");
+
 /*
  * Motion graph:
  * Struct stConf containing st-aura and id and pebble bool
