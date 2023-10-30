@@ -32,9 +32,9 @@
 //const int WORKSPACE_COMPLEXITY = 50;
 
 /*
- * TODO: Draw combined pictures: https://doc.cgal.org/latest/GraphicsView/classCGAL_1_1Qt_1_1PainterOstream.html
  * TODO: Directed-interference forest from F
- * TODO: Motion Graph
+ * TODO: Algorithm
+ * TODO: Edge Path generation
  */
 
 int main(int argc, char *argv[])
@@ -62,12 +62,12 @@ int main(int argc, char *argv[])
     STConfigurations stConfigurations = WorkspaceGenerator::getStartAndTargetConfigurations(freeSpaceComponents);
     WSFreeSpaceGenerator::associateSTConfs(freeSpaceComponents, stConfigurations.startConfigurations, stConfigurations.targetConfigurations);
     std::vector<FStarComponent> fStarSet = WSFreeSpaceGenerator::getFStar2(freeSpaceComponents);
-    Polygon_set_2 set;
-    for(const auto& fs : fStarSet) {
-        set.insert(fs.fStarPolygon);
-    }
-
-    CGAL::draw(set);
+//    Polygon_set_2 set;
+//    for(const auto& fs : fStarSet) {
+//        set.insert(fs.fStarPolygon);
+//    }
+//
+//    CGAL::draw(set);
 
     SFMLDrawUtils::drawFStar(fStarSet, "fStar");
 

@@ -47,6 +47,8 @@ struct MGVertexProperty {
 struct MGEdgeProperty {
     //PathtoTake
     std::vector<Segment_2> pathLineSegments;
+    std::string pathStartId;
+    bool isBlockable = false;
 };
 
 typedef boost::adjacency_list<
