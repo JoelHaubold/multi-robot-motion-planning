@@ -33,9 +33,17 @@
 
 /*
  * TODO: Directed-interference forest from F
- * TODO: Algorithm
- * TODO: Edge Path generation
+ *
  */
+
+//try {
+//    // Code that may throw an exception TODO: Exception throwing on sanity check and catching + logging with random seed/ workspace+st configuration
+//    throw std::runtime_error("This is an example exception.");
+//} catch (const std::exception& e) {
+//    // Catch the exception and handle it
+//    std::cerr << "Caught an exception: " << e.what() << std::endl;
+//}
+
 
 int main(int argc, char *argv[])
 {
@@ -75,6 +83,7 @@ int main(int argc, char *argv[])
     //WSFreeSpaceGenerator::getMotionGraph(fStarSet, startConfs, targetConfs);
 
     Motion_Graph motionGraph;
+    //TODO: Change this to generate motion graph per free space component
     const MGIdToVertex id2Vertex = WSMotionGraphGenerator::insertVertices(motionGraph, stConfigurations);
     WSMotionGraphGenerator::insertEdges(motionGraph, fStarSet, id2Vertex);
 
@@ -101,6 +110,25 @@ int main(int argc, char *argv[])
  * Get B and create resulting list of stConfs
  * Get H and shoot rays up detect intersection point against whole connected component? Put in list add edge
  */
+
+    /*
+     * Check tree leaves
+     * Contains target conf? Move pebble and remove
+     * If not random start conf
+     * If no pebble -> Remove
+     * Else move pebble (by chain) to
+     *
+     * Outputs:
+     * Chess notation of pebble moves w. opt removal
+     * Translation of moves to robot moves (ends of segments)
+     * Whole motion schedule
+     */
+
+    /*
+     * Directed-intrference forest check intersection of each st with each FPoly
+     */
+
+
 
     return 0;
 

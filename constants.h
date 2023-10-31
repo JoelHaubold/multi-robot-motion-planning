@@ -5,6 +5,8 @@
 #ifndef MRMP_IMPLEMENTATION_CONSTANTS_H
 #define MRMP_IMPLEMENTATION_CONSTANTS_H
 
+
+//TODO: Split into constant file and parameter file
 const double RADIUS = 70;
 const int MAX_POLY_SIZE = 100;
 
@@ -26,6 +28,7 @@ const std::string FREE_SPACE_PREFIX = "F";
 const std::string F_STAR_PREFIX = "F*";
 const std::string START_CONF_PREFIX = "S";
 const std::string TARGET_CONF_PREFIX = "T";
+const std::string Robot_PREFIX = "R";
 
 
 

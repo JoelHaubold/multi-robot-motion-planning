@@ -11,6 +11,7 @@
 #include <CGAL/Polygon_set_2.h>
 #include <boost/graph/adjacency_list.hpp>
 #include <utility>
+#include "constants.h"
 
 
 
@@ -29,18 +30,18 @@ typedef CGAL::Polygon_set_2<K, Container>                 Polygon_set_2;
 
 // Define the MGVertexProperty struct
 struct MGVertexProperty {
-    //Necessary for boost library
+    //Necessary for boost library to add edges to the motion graph
     MGVertexProperty()
-        : location(Point_2(0, 0)), isStartVertex(false), hasPebble(false) {
+        : location(Point_2(0, 0)), isStartVertex(false) {
     }
 
     MGVertexProperty(const std::string id, const Point_2 loc, const bool isStart)
         : id(id), location(loc), isStartVertex(isStart) {
     }
-    const std::string id;
-    const Point_2 location;
-    const bool isStartVertex;
-    bool hasPebble = isStartVertex;
+    std::string id;
+    Point_2 location;
+    bool isStartVertex;
+    std::string occupyingRobot = isStartVertex ? id.substr(START_CONF_PREFIX.length()) : "";
 };
 
 // Define the MGEdgeProperty struct
@@ -59,6 +60,7 @@ typedef boost::adjacency_list<
     MGEdgeProperty               // Property for edges
     >                                                     Motion_Graph;
 typedef boost::graph_traits<Motion_Graph>::vertex_descriptor    Vertex;
+typedef boost::graph_traits<Motion_Graph>::edge_descriptor      Edge;
 typedef std::unordered_map<std::string, Vertex>           MGIdToVertex;
 
 
