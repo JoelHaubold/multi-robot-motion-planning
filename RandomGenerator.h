@@ -10,13 +10,14 @@
 
 class RandomGenerator {
 public:
-  RandomGenerator();
-  static int getRandomInt(int min, int max);
-  static double getRandomDouble(double min, double max);
-  static bool getRandomBoolean();
+    static int getRandomInt(int min, int max);
+    static double getRandomDouble(double min, double max);
+    static bool getRandomBoolean();
+    static unsigned int getSeed();
+    static void setSeed(unsigned int seed);
 
 private:
-  static CGAL::Random cgalRandom;
+
 };
 
 

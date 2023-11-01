@@ -6,6 +6,9 @@
 #include <CGAL/draw_polygon_set_2.h>
 #include "Utils/SFMLDrawUtils.h"
 #include "Utils/GraphvizDrawUtils.h"
+#include "Utils/StringUtils.h"
+#include "RandomGenerator.h"
+#include "WellSeparatedSolver/WSMotionGraphSolver.h"
 //#include "DrawUtils.h"
 //#include <QApplication>
 
@@ -23,7 +26,7 @@
 #include <list>
 
 //const double RADIUS = 100;
-//const int MAX_POLY_SIZE = 100;
+//const int WORKSPACE_COMPLEXITY = 100;
 //
 //const int OBSTACLE_OFFSET = 5;
 //const int ROBOT_SIZE = 4;
@@ -33,6 +36,7 @@
 
 /*
  * TODO: Directed-interference forest from F
+ * TODO: Reimplement intelligent aura traversal
  *
  */
 
@@ -49,6 +53,7 @@ int main(int argc, char *argv[])
 {
 //    QApplication app(argc, argv);
 
+    //RandomGenerator::setSeed(900439196);
     Polygon_2 workspacePolygon = WorkspaceGenerator::generateRandomPolygon();
 //    CGAL::draw(workspacePolygon);
 //    SFMLDrawUtils::drawPolygon_2(workspacePolygon, "workspace");
@@ -57,15 +62,7 @@ int main(int argc, char *argv[])
 //    std::cout << "FC:" << std::endl;
     std::vector<FreeSpaceComponent> freeSpaceComponents = WSFreeSpaceGenerator::getFreeSpaceComponents(workspacePolygon);
 //    SFMLDrawUtils::drawFreeSpace(freeSpaceComponents, "freeSpace");
-//    std::cout << "FCE:" << std::endl;
-//    std::for_each(freeSpaceSegments.begin(), freeSpaceSegments.end(), [&freeSpaceSet](Polygon_2 poly){
-//                      poly.reverse_orientation();
-//                      freeSpaceSet.insert(poly);
-//                  });
 
-    //CGAL::Holes_container freeSpaceComponents = free_space_complement_polygon.holes();
-
-    //CGAL::draw(free_space_complement_polygon*);
 
     STConfigurations stConfigurations = WorkspaceGenerator::getStartAndTargetConfigurations(freeSpaceComponents);
     WSFreeSpaceGenerator::associateSTConfs(freeSpaceComponents, stConfigurations.startConfigurations, stConfigurations.targetConfigurations);
@@ -82,25 +79,34 @@ int main(int argc, char *argv[])
     //WSFreeSpaceGenerator::associateSTConfs(freeSpaceComponents, fStarSet, stConfigurations.startConfigurations, stConfigurations.targetConfigurations);
     //WSFreeSpaceGenerator::getMotionGraph(fStarSet, startConfs, targetConfs);
 
-    Motion_Graph motionGraph;
-    //TODO: Change this to generate motion graph per free space component
-    const MGIdToVertex id2Vertex = WSMotionGraphGenerator::insertVertices(motionGraph, stConfigurations);
-    WSMotionGraphGenerator::insertEdges(motionGraph, fStarSet, id2Vertex);
+//    Motion_Graph motionGraph;
+//
+//    const MGIdToVertex id2Vertex = WSMotionGraphGenerator::insertVertices(motionGraph, stConfigurations);
+//    WSMotionGraphGenerator::insertEdges(motionGraph, fStarSet, id2Vertex);
 
-    GraphvizDrawUtils::drawMotionGraph(motionGraph);
+    std::unordered_map<std::string, Motion_Graph> mgs= WSMotionGraphGenerator::getMotionGraphs(freeSpaceComponents,fStarSet);
+
+    GraphvizDrawUtils::drawMotionGraphs(mgs);
 
     std::vector<MGEdgeProperty> edges;
 
-    auto edgePair = boost::edges(motionGraph);
-    auto edgeIt = edgePair.first;
-    auto edgeEnd = edgePair.second;
-    auto edgePropertyMap = boost::get(boost::edge_bundle, motionGraph);
-    for (; edgeIt != edgeEnd; ++edgeIt) {
-        edges.push_back(motionGraph[*edgeIt]);
-//        MGEdgeProperty edgeProperty = edgePropertyMap[edgePair.first];
-//        edges.push_back(motionGraph[edge_descriptor]);
+    for(const auto& fsMg : mgs) {
+        const auto& motionGraph = fsMg.second;
+        auto edgePair = boost::edges(motionGraph);
+        auto edgeIt = edgePair.first;
+        auto edgeEnd = edgePair.second;
+        auto edgePropertyMap = boost::get(boost::edge_bundle, motionGraph);
+        for (; edgeIt != edgeEnd; ++edgeIt) {
+            edges.push_back(motionGraph[*edgeIt]);
+            //        MGEdgeProperty edgeProperty = edgePropertyMap[edgePair.first];
+            //        edges.push_back(motionGraph[edge_descriptor]);
+        }
     }
+
     SFMLDrawUtils::drawPaths(fStarSet, edges, "Paths");
+    MotionSchedule ms =  WSMotionGraphSolver::solveMotionGraphs(mgs);
+
+    StringUtils::printMotionSteps(ms);
 
 /*
  * Motion graph:

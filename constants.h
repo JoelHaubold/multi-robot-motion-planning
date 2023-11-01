@@ -7,14 +7,13 @@
 
 
 //TODO: Split into constant file and parameter file
-const double RADIUS = 70;
-const int MAX_POLY_SIZE = 100;
+const double MAX_WORKSPACE_SIZE = 150;
+const int WORKSPACE_COMPLEXITY = 100;
 
 const int OBSTACLE_OFFSET = 5;
 const int ROBOT_SIZE = 2;
 
 const int NMBR_START_POS = 10;
-const int WORKSPACE_COMPLEXITY = 50; //TODO: Replace poly size with this
 
 const int NMBR_POINT_TRIES = 10000;
 const int NMBR_PAIR_POINT_TRIES = 100;
@@ -28,7 +27,7 @@ const std::string FREE_SPACE_PREFIX = "F";
 const std::string F_STAR_PREFIX = "F*";
 const std::string START_CONF_PREFIX = "S";
 const std::string TARGET_CONF_PREFIX = "T";
-const std::string Robot_PREFIX = "R";
+const std::string ROBOT_PREFIX = "R";
 
 
 

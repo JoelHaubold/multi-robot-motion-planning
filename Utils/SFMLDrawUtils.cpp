@@ -12,7 +12,7 @@
 #include <cmath>
 
 static const int UPSCALE_FACTOR = 8;
-static const double BORDER_FACTOR = 1.3;
+static const double BORDER_FACTOR = 1.6;
 static sf::Font font;
 static bool loadedFont;
 
@@ -210,8 +210,8 @@ void SFMLDrawUtils::drawPaths(const std::vector<FStarComponent> &toDraw, const s
 //        MGEdgeProperty edgeProps = mg[edgeDescriptor];
 //        std::vector<Segment_2> edgePath = edgeProps.pathLineSegments;
 //        for(const auto& pathSegment : edgePath) {
-//            lines.append(sf::Vertex(getUpscaledOffsetVector(pathSegment.source(), width/2, height/2), sf::Color::Red));
-//            lines.append(sf::Vertex(getUpscaledOffsetVector(pathSegment.target(), width/2, height/2), sf::Color::Red));
+//            lines.append(sf::MGVertex(getUpscaledOffsetVector(pathSegment.source(), width/2, height/2), sf::Color::Red));
+//            lines.append(sf::MGVertex(getUpscaledOffsetVector(pathSegment.target(), width/2, height/2), sf::Color::Red));
 //
 //
 //        }
@@ -219,7 +219,7 @@ void SFMLDrawUtils::drawPaths(const std::vector<FStarComponent> &toDraw, const s
 //    window.draw(lines);
 
     for (const auto& edgeProps : edges) {
-        std::cout << "Drawing edge for: " << edgeProps.pathStartId<< std::endl;
+        //std::cout << "Drawing edge for: " << edgeProps.pathStartId<< std::endl;
         std::vector<Segment_2> edgePath = edgeProps.pathLineSegments;
         for(const auto& pathSegment : edgePath) {
             sf::Vector2f point1 = getUpscaledVector(pathSegment.source());

@@ -58,10 +58,10 @@ std::vector<FreeSpaceComponent> WSFreeSpaceGenerator::getFreeSpaceComponents(con
     std::vector<FreeSpaceComponent> freeSpaces;
 
     int nmbr_free_spaces = 0;
-    std::cout << "Iterating:" << std::endl;
+    //std::cout << "Iterating:" << std::endl;
     // Iterate through the holes and convert them to Polygon_2
     for (auto hole_it = free_space_complement_polygon.holes_begin(); hole_it != free_space_complement_polygon.holes_end(); ++hole_it) {
-        std::cout << "Iter" << std::endl;
+        //std::cout << "Iter" << std::endl;
         Polygon_2 hole = *hole_it;
         hole.reverse_orientation(); // Counter clockwise orientation for later set processing
         nmbr_free_spaces++;
@@ -69,7 +69,7 @@ std::vector<FreeSpaceComponent> WSFreeSpaceGenerator::getFreeSpaceComponents(con
         //freeSpaces[FREE_SPACE_PREFIX+std::to_string(nmbr_free_spaces)] = hole;
         //CGAL::draw(hole);
     }
-    std::cout << "Stoping iterating:" << std::endl;
+    //std::cout << "Stoping iterating:" << std::endl;
     return freeSpaces;
 }
 

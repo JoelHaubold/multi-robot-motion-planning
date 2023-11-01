@@ -10,7 +10,9 @@ add_executable(mrmp_implementation main.cpp RandomGenerator.cpp RandomGenerator.
         Utils/GraphvizDrawUtils.cpp
         Utils/GraphvizDrawUtils.h
         WellSeparatedSolver/WSMotionGraphSolver.cpp
-        WellSeparatedSolver/WSMotionGraphSolver.h)
+        WellSeparatedSolver/WSMotionGraphSolver.h
+        Utils/StringUtils.cpp
+        Utils/StringUtils.h)
 
 include(C:/Users/joelh/Documents/CppStuff/vcpkg/scripts/buildsystems/vcpkg.cmake)
 

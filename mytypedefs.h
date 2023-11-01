@@ -59,9 +59,9 @@ typedef boost::adjacency_list<
     MGVertexProperty,            // Property for vertices
     MGEdgeProperty               // Property for edges
     >                                                     Motion_Graph;
-typedef boost::graph_traits<Motion_Graph>::vertex_descriptor    Vertex;
-typedef boost::graph_traits<Motion_Graph>::edge_descriptor      Edge;
-typedef std::unordered_map<std::string, Vertex>           MGIdToVertex;
+typedef boost::graph_traits<Motion_Graph>::vertex_descriptor MGVertex;
+typedef boost::graph_traits<Motion_Graph>::edge_descriptor MGEdge;
+typedef std::unordered_map<std::string, MGVertex>           MGIdToVertex;
 
 
 struct STConf {
@@ -102,6 +102,11 @@ struct FStarComponent {
     const FreeSpaceComponent& parent;
     const std::vector<STConf> adjacentSConfs;
     const std::vector<STConf> adjacentTConfs;
+};
+
+struct MotionSchedule{
+    std::unordered_map<std::string, std::string> robots2VerticesTraveled;
+    std::string motionSchedule;
 };
 
 #endif//MRMP_IMPLEMENTATION_MYTYPEDEFS_H

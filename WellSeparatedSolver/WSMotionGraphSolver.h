@@ -7,23 +7,21 @@
 
 #include "../mytypedefs.h"
 
-struct MotionSchedule{
-    std::unordered_map<std::string, std::string> robots2VerticesTraveled;
-    std::string motionSchedule;
-};
+
 
 class WSMotionGraphSolver
 {
 public:
-    static MotionSchedule solveMotionGraphs();
+    static MotionSchedule solveMotionGraphs(std::unordered_map<std::string, Motion_Graph>& mgs);
     static void solveMotionGraphComponent(Motion_Graph& mg, MotionSchedule& ms); //const Directed-interference forest
 private:
-    static void handleTargetLeaf(Motion_Graph& mg, MotionSchedule& ms, const Vertex& targetLeaf);
-    static void handleStartLeaf(Motion_Graph &mg, MotionSchedule &ms, const Vertex &startLeaf);
-    static std::vector<Vertex> findNearestVertex(Motion_Graph& mg, const Vertex& toVertex, bool containingRobot);
-    static void doMoveFrom(Motion_Graph& mg, MotionSchedule& ms, std::vector<Vertex> path);
+    static void handleTargetLeaf(Motion_Graph& mg, MotionSchedule& ms, const MGVertex & targetLeaf);
+    static void handleStartLeaf(Motion_Graph &mg, MotionSchedule &ms, const MGVertex &startLeaf);
+    static std::vector<MGVertex> findNearestVertex(Motion_Graph& mg, const MGVertex & toVertex, bool containingRobot);
+    static void doMoveFrom(Motion_Graph& mg, MotionSchedule& ms, std::vector<MGVertex> path);
     static void doMove(MotionSchedule& ms, MGVertexProperty& from, MGVertexProperty& to, const MGEdgeProperty& over);
-    static void doChainMove(Motion_Graph &mg, MotionSchedule &ms, std::vector<Vertex> path);
+    static void doChainMove(Motion_Graph &mg, MotionSchedule &ms, std::vector<MGVertex> path);
+    static void findAndRemoveLeaf(Motion_Graph &mg, MotionSchedule &ms);
 };
 
 

@@ -11,23 +11,30 @@
 
 Polygon_2 WorkspaceGenerator::generateRandomPolygon() {
   Polygon_2            polygon;
-  std::list<Point_2>   point_set;
+  std::set<Point_2>   point_set;
   //CGAL::Random         rand;
-  //std::cerr << "Seed = " <<  rand.get_seed() << std::endl;
-  int size = RandomGenerator::getRandomInt(4, MAX_POLY_SIZE);
+  std::cerr << "Seed = " <<  RandomGenerator::getSeed() << std::endl;
+  std::cerr << "Seed = " <<  RandomGenerator::getSeed() << std::endl;
+  int size = RandomGenerator::getRandomInt(4, WORKSPACE_COMPLEXITY);
+  std::cerr << "Generating workspace of size = " <<  size << std::endl;
   // copy size points from the generator, eliminating duplicates, so the
   // polygon will have <= size vertices
-  CGAL::copy_n_unique(WorkspaceGenerator::Point_generator(RADIUS), size,
-                      std::back_inserter(point_set));
-  std::ostream_iterator< Point_2 >  out( std::cout, " " );
-  std::cout << "From the following " << point_set.size() << " points "
-            << std::endl;
-  std::copy(point_set.begin(), point_set.end(), out);
-  std::cout << std::endl;
+//  CGAL::copy_n_unique(WorkspaceGenerator::Point_generator(RADIUS), size,
+//                      std::back_inserter(point_set));
+  while(point_set.size() < size) {
+      double x = RandomGenerator::getRandomDouble(- MAX_WORKSPACE_SIZE/2, MAX_WORKSPACE_SIZE/2);
+      double y = RandomGenerator::getRandomDouble(- MAX_WORKSPACE_SIZE/2, MAX_WORKSPACE_SIZE/2);
+      point_set.emplace(x,y);
+  }
+//  std::ostream_iterator< Point_2 >  out( std::cout, " " );
+//  std::cout << "From the following " << point_set.size() << " points "
+//            << std::endl;
+//  std::copy(point_set.begin(), point_set.end(), out);
+//  std::cout << std::endl;
   CGAL::random_polygon_2(point_set.size(), std::back_inserter(polygon),
                          point_set.begin());
-  std::cout << "The following simple polygon was made: " << std::endl;
-  std::cout << polygon << std::endl;
+//  std::cout << "The following simple polygon was made: " << std::endl;
+//  std::cout << polygon << std::endl;
 
   //CGAL::draw(polygon);
   return polygon;
@@ -153,7 +160,7 @@ STConfigurations WorkspaceGenerator::getStartAndTargetConfigurations(const std::
             if (CGAL::bounded_side_2(poly.vertices_begin(), poly.vertices_end(), randomPoint,K()) != CGAL::ON_BOUNDED_SIDE) {
                 continue;
             }
-            std::cout << "For iter" << std::endl;
+            //std::cout << "For iter" << std::endl;
             Bbox_2 bbox = poly.bbox();
             //Try to generate accompanying target conf
             for (int j = 0; i < NMBR_PAIR_POINT_TRIES; j++) {

@@ -9,7 +9,8 @@
 class GraphvizDrawUtils
 {
 public:
-    static void drawMotionGraph(const Motion_Graph& motionGraph);
+    static void drawMotionGraph(const Motion_Graph& motionGraph, std::string location);
+    static void drawMotionGraphs(const std::unordered_map<std::string, Motion_Graph>& mgs);
 };
 
 
