@@ -17,6 +17,8 @@ class Utils
       //static Polygon_2 generateRobotAura(const Point_2& center, double sizeOfAura);
       static Point_2 getLowestIntersectionPoint(const Segment_2& verticalRay, const Polygon_2& polyToIntersect);
       static double getClosestIntersectionPointToOrigin(const Point_2& seg1Origin, const Segment_2 & seg1, const Segment_2 & seg2);
+
+      static double getRuntimeBound(const int workspaceComplexity, const int nmbrStartConfs);
 };
 
 

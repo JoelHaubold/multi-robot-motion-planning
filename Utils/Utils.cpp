@@ -8,10 +8,10 @@
 
 Polygon_2 Utils::generateBoundingBox(const CGAL::Bbox_2& bbox) {
     //Bbox_2 bbox = polygon.bbox();
-    K::FT minX = bbox.xmin() - OBSTACLE_OFFSET;
-    K::FT maxX = bbox.xmax() + OBSTACLE_OFFSET;
-    K::FT minY = bbox.ymin() - OBSTACLE_OFFSET;
-    K::FT maxY = bbox.ymax() + OBSTACLE_OFFSET;
+    K::FT minX = bbox.xmin() - OBSTACLE_SPACE_OFFSET;
+    K::FT maxX = bbox.xmax() + OBSTACLE_SPACE_OFFSET;
+    K::FT minY = bbox.ymin() - OBSTACLE_SPACE_OFFSET;
+    K::FT maxY = bbox.ymax() + OBSTACLE_SPACE_OFFSET;
 
 
 
@@ -95,6 +95,10 @@ double Utils::getClosestIntersectionPointToOrigin(const Point_2& seg1Origin, con
         const Point_2* p = boost::get<Point_2 >(&*result);
         return CGAL::to_double(CGAL::squared_distance(seg1Origin,*s));
     }
+}
+double Utils::getRuntimeBound(const int workspaceComplexity, const int nmbrStartConfs)
+{
+    return (workspaceComplexity+nmbrStartConfs)*std::log(workspaceComplexity+nmbrStartConfs) + std::pow(nmbrStartConfs,2) + nmbrStartConfs*workspaceComplexity;
 }
 
 //Polygon_2 Utils::generateRobotAura(const Point_2& center, double sizeOfAura) {

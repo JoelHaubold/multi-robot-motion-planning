@@ -5,25 +5,25 @@
 #include "WorkspaceGenarator.h"
 #include <CGAL/random_polygon_2.h>
 #include <iostream>
-#include "constants.h"
+//#include "constants.h"
 #include "RandomGenerator.h"
 #include <functional>
 
-Polygon_2 WorkspaceGenerator::generateRandomPolygon() {
+Polygon_2 WorkspaceGenerator::generateRandomPolygon(int workspaceComplexity, double workspaceSize) {
   Polygon_2            polygon;
   std::set<Point_2>   point_set;
   //CGAL::Random         rand;
   std::cerr << "Seed = " <<  RandomGenerator::getSeed() << std::endl;
   std::cerr << "Seed = " <<  RandomGenerator::getSeed() << std::endl;
-  int size = RandomGenerator::getRandomInt(4, WORKSPACE_COMPLEXITY);
+  int size = workspaceComplexity;//RandomGenerator::getRandomInt(4, WORKSPACE_COMPLEXITY);
   std::cerr << "Generating workspace of size = " <<  size << std::endl;
   // copy size points from the generator, eliminating duplicates, so the
   // polygon will have <= size vertices
 //  CGAL::copy_n_unique(WorkspaceGenerator::Point_generator(RADIUS), size,
 //                      std::back_inserter(point_set));
   while(point_set.size() < size) {
-      double x = RandomGenerator::getRandomDouble(- MAX_WORKSPACE_SIZE/2, MAX_WORKSPACE_SIZE/2);
-      double y = RandomGenerator::getRandomDouble(- MAX_WORKSPACE_SIZE/2, MAX_WORKSPACE_SIZE/2);
+      double x = RandomGenerator::getRandomDouble(- workspaceSize/2, workspaceSize/2);
+      double y = RandomGenerator::getRandomDouble(- workspaceSize/2, workspaceSize/2);
       point_set.emplace(x,y);
   }
 //  std::ostream_iterator< Point_2 >  out( std::cout, " " );
@@ -84,7 +84,7 @@ Polygon_2 WorkspaceGenerator::generateRandomPolygon() {
 //
 //    std::list<Point_2>   point_set;
 //    int pointsGenerated = 0;
-//    while(point_set.size() < NMBR_START_POS && pointsGenerated < 10000)
+//    while(point_set.size() < numberStartConfigs && pointsGenerated < 10000)
 //    {
 //      //Ones polygon gets a point genarate second point in that polygon, if fails x times don't use the point.
 //      //std::cout << "While iter" << std::endl;
@@ -102,7 +102,7 @@ Polygon_2 WorkspaceGenerator::generateRandomPolygon() {
 //            pointsGenerated++;
 //        }
 //    }
-//    std::cout << "Generated " << pointsGenerated << " points for " << NMBR_START_POS << " points"
+//    std::cout << "Generated " << pointsGenerated << " points for " << numberStartConfigs << " points"
 //              << std::endl;
 //
 //    return point_set;
@@ -110,7 +110,7 @@ Polygon_2 WorkspaceGenerator::generateRandomPolygon() {
 
 
 
-STConfigurations WorkspaceGenerator::getStartAndTargetConfigurations(const std::vector<FreeSpaceComponent>& containingPolygons) {
+STConfigurations WorkspaceGenerator::getStartAndTargetConfigurations(const std::vector<FreeSpaceComponent>& containingPolygons, int numberStartConfigs) {
     //  std::vector<std::vector<Point_2>> startConfsPerComponent;
     //  std::vector<std::vector<Point_2>> targetConfsPerComponent;
     //
@@ -143,7 +143,7 @@ STConfigurations WorkspaceGenerator::getStartAndTargetConfigurations(const std::
     int pointsAccepted = 0;
     std::vector<Point_2> startConfsGenerated;
     std::vector<Point_2> targetConfsGenerated;
-    while(pointsAccepted < 2*NMBR_START_POS && pointsGenerated < NMBR_POINT_TRIES)
+    while(pointsAccepted < 2*numberStartConfigs && pointsGenerated < NMBR_POINT_TRIES)
     {
         //Ones polygon gets a point, genarate a second point in that polygon, if that fails x times don't use the first point.
         Point_2 randomPoint = getRandomPoint(xmin, xmax, ymin, ymax);
@@ -181,7 +181,7 @@ STConfigurations WorkspaceGenerator::getStartAndTargetConfigurations(const std::
             }
         }
     }
-    std::cout << "Generated " << pointsGenerated << " points for " << NMBR_START_POS*2 << " points"
+    std::cout << "Generated " << pointsGenerated << " points for " << numberStartConfigs*2 << " points"
               << std::endl;
     STConfigurations stconfs;
 

@@ -5,21 +5,13 @@
 #ifndef MRMP_IMPLEMENTATION_WORKSPACEGENARATOR_H
 #define MRMP_IMPLEMENTATION_WORKSPACEGENARATOR_H
 
-
-#include <CGAL/point_generators_2.h>
-#include <list>
-#include <vector>
 #include "mytypedefs.h"
 
 //TODO: Rename to ~RequirementsGenerator
 class WorkspaceGenerator {
-
-    typedef CGAL::Random_points_in_square_2<Point_2, Creator> Point_generator;
-
 public:
-
-    static Polygon_2 generateRandomPolygon();
-    static STConfigurations getStartAndTargetConfigurations(const std::vector<FreeSpaceComponent>& containingPolygons);
+    static Polygon_2 generateRandomPolygon(int workspaceComplexity, double workspaceSize);
+    static STConfigurations getStartAndTargetConfigurations(const std::vector<FreeSpaceComponent>& containingPolygons, int nmbrStartConfs);
 
 
 

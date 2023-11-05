@@ -27,6 +27,7 @@ typedef CGAL::Bbox_2                                      Bbox_2;
 typedef CGAL::Creator_uniform_2<int, Point_2>             Creator;
 typedef std::list<Polygon_wh_2>                           Pwh_list_2;
 typedef CGAL::Polygon_set_2<K, Container>                 Polygon_set_2;
+typedef std::chrono::high_resolution_clock::time_point    time_point;
 
 // Define the MGVertexProperty struct
 struct MGVertexProperty {

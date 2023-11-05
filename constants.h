@@ -6,22 +6,18 @@
 #define MRMP_IMPLEMENTATION_CONSTANTS_H
 
 
-//TODO: Split into constant file and parameter file
-const double MAX_WORKSPACE_SIZE = 150;
-const int WORKSPACE_COMPLEXITY = 100;
+#include "runtimeTestValues.h"
 
-const int OBSTACLE_OFFSET = 5;
+const int OBSTACLE_SPACE_OFFSET = 5;
 const int ROBOT_SIZE = 2;
 
-const int NMBR_START_POS = 10;
-
-const int NMBR_POINT_TRIES = 10000;
+const int NMBR_POINT_TRIES = 20000;
 const int NMBR_PAIR_POINT_TRIES = 100;
 
-const bool USE_WS = true;
-//TODO: Set automically based on bool
+const bool GENERATE_DEBUG_DRAWINGS = false;
+
 const double MONOCHROMATIC_SEPARATION = 4.0;
-const double BICHROMATIC_SEPARATION = 4.0;
+const double BICHROMATIC_SEPARATION = USE_WS_SOLVER ? 4.0 : 2.0;
 
 const std::string FREE_SPACE_PREFIX = "F";
 const std::string F_STAR_PREFIX = "F*";

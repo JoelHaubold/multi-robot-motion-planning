@@ -1,16 +1,18 @@
-#include "WellSeparatedSolver/WSFreeSpaceGenerator.h"
-#include "WellSeparatedSolver/WSMotionGraphGenerator.h"
-#include "WorkspaceGenarator.h"
-#include "mytypedefs.h"
-//#include <CGAL/draw_polygon_2.h>
-#include <CGAL/draw_polygon_set_2.h>
-#include "Utils/SFMLDrawUtils.h"
-#include "Utils/GraphvizDrawUtils.h"
-#include "Utils/StringUtils.h"
-#include "RandomGenerator.h"
-#include "WellSeparatedSolver/WSMotionGraphSolver.h"
+//#include "WellSeparatedSolver/WSFreeSpaceGenerator.h"
+//#include "WellSeparatedSolver/WSMotionGraphGenerator.h"
+//#include "WorkspaceGenarator.h"
+//#include "mytypedefs.h"
+////#include <CGAL/draw_polygon_2.h>
+//#include <CGAL/draw_polygon_set_2.h>
+//#include "Utils/SFMLDrawUtils.h"
+//#include "Utils/GraphvizDrawUtils.h"
+//#include "Utils/StringUtils.h"
+//#include "RandomGenerator.h"
+//#include "WellSeparatedSolver/WSMotionGraphSolver.h"
 //#include "DrawUtils.h"
 //#include <QApplication>
+#include "WellSeparatedSolver/WSSolver.h"
+
 
 //#ifdef CGAL_USE_GMP
 //#include <CGAL/Gmpz.h>
@@ -28,7 +30,7 @@
 //const double RADIUS = 100;
 //const int WORKSPACE_COMPLEXITY = 100;
 //
-//const int OBSTACLE_OFFSET = 5;
+//const int OBSTACLE_SPACE_OFFSET = 5;
 //const int ROBOT_SIZE = 4;
 //
 //const int NMBR_START_POS = 10;
@@ -52,61 +54,62 @@
 int main(int argc, char *argv[])
 {
 //    QApplication app(argc, argv);
+    WSSolver::doMRMPRuntimeTest();
 
     //RandomGenerator::setSeed(900439196);
-    Polygon_2 workspacePolygon = WorkspaceGenerator::generateRandomPolygon();
-//    CGAL::draw(workspacePolygon);
-//    SFMLDrawUtils::drawPolygon_2(workspacePolygon, "workspace");
-
-    //DrawUtils::drawPolygon(workspacePolygon);
-//    std::cout << "FC:" << std::endl;
-    std::vector<FreeSpaceComponent> freeSpaceComponents = WSFreeSpaceGenerator::getFreeSpaceComponents(workspacePolygon);
-//    SFMLDrawUtils::drawFreeSpace(freeSpaceComponents, "freeSpace");
-
-
-    STConfigurations stConfigurations = WorkspaceGenerator::getStartAndTargetConfigurations(freeSpaceComponents);
-    WSFreeSpaceGenerator::associateSTConfs(freeSpaceComponents, stConfigurations.startConfigurations, stConfigurations.targetConfigurations);
-    std::vector<FStarComponent> fStarSet = WSFreeSpaceGenerator::getFStar2(freeSpaceComponents);
-//    Polygon_set_2 set;
-//    for(const auto& fs : fStarSet) {
-//        set.insert(fs.fStarPolygon);
+//    Polygon_2 workspacePolygon = WorkspaceGenerator::generateRandomPolygon();
+////    CGAL::draw(workspacePolygon);
+////    SFMLDrawUtils::drawPolygon_2(workspacePolygon, "workspace");
+//
+//    //DrawUtils::drawPolygon(workspacePolygon);
+////    std::cout << "FC:" << std::endl;
+//    std::vector<FreeSpaceComponent> freeSpaceComponents = WSFreeSpaceGenerator::getFreeSpaceComponents(workspacePolygon);
+////    SFMLDrawUtils::drawFreeSpace(freeSpaceComponents, "freeSpace");
+//
+//
+//    STConfigurations stConfigurations = WorkspaceGenerator::getStartAndTargetConfigurations(freeSpaceComponents);
+//    WSFreeSpaceGenerator::associateSTConfs(freeSpaceComponents, stConfigurations.startConfigurations, stConfigurations.targetConfigurations);
+//    std::vector<FStarComponent> fStarSet = WSFreeSpaceGenerator::getFStar2(freeSpaceComponents);
+////    Polygon_set_2 set;
+////    for(const auto& fs : fStarSet) {
+////        set.insert(fs.fStarPolygon);
+////    }
+////
+////    CGAL::draw(set);
+//
+//    SFMLDrawUtils::drawFStar(fStarSet, "fStar");
+//
+//    //WSFreeSpaceGenerator::associateSTConfs(freeSpaceComponents, fStarSet, stConfigurations.startConfigurations, stConfigurations.targetConfigurations);
+//    //WSFreeSpaceGenerator::getMotionGraph(fStarSet, startConfs, targetConfs);
+//
+////    Motion_Graph motionGraph;
+////
+////    const MGIdToVertex id2Vertex = WSMotionGraphGenerator::insertVertices(motionGraph, stConfigurations);
+////    WSMotionGraphGenerator::insertEdges(motionGraph, fStarSet, id2Vertex);
+//
+//    std::unordered_map<std::string, Motion_Graph> mgs= WSMotionGraphGenerator::getMotionGraphs(freeSpaceComponents,fStarSet);
+//
+//    GraphvizDrawUtils::drawMotionGraphs(mgs);
+//
+//    std::vector<MGEdgeProperty> edges;
+//
+//    for(const auto& fsMg : mgs) {
+//        const auto& motionGraph = fsMg.second;
+//        auto edgePair = boost::edges(motionGraph);
+//        auto edgeIt = edgePair.first;
+//        auto edgeEnd = edgePair.second;
+//        auto edgePropertyMap = boost::get(boost::edge_bundle, motionGraph);
+//        for (; edgeIt != edgeEnd; ++edgeIt) {
+//            edges.push_back(motionGraph[*edgeIt]);
+//            //        MGEdgeProperty edgeProperty = edgePropertyMap[edgePair.first];
+//            //        edges.push_back(motionGraph[edge_descriptor]);
+//        }
 //    }
 //
-//    CGAL::draw(set);
-
-    SFMLDrawUtils::drawFStar(fStarSet, "fStar");
-
-    //WSFreeSpaceGenerator::associateSTConfs(freeSpaceComponents, fStarSet, stConfigurations.startConfigurations, stConfigurations.targetConfigurations);
-    //WSFreeSpaceGenerator::getMotionGraph(fStarSet, startConfs, targetConfs);
-
-//    Motion_Graph motionGraph;
+//    SFMLDrawUtils::drawPaths(fStarSet, edges, "Paths");
+//    MotionSchedule ms =  WSMotionGraphSolver::solveMotionGraphs(mgs);
 //
-//    const MGIdToVertex id2Vertex = WSMotionGraphGenerator::insertVertices(motionGraph, stConfigurations);
-//    WSMotionGraphGenerator::insertEdges(motionGraph, fStarSet, id2Vertex);
-
-    std::unordered_map<std::string, Motion_Graph> mgs= WSMotionGraphGenerator::getMotionGraphs(freeSpaceComponents,fStarSet);
-
-    GraphvizDrawUtils::drawMotionGraphs(mgs);
-
-    std::vector<MGEdgeProperty> edges;
-
-    for(const auto& fsMg : mgs) {
-        const auto& motionGraph = fsMg.second;
-        auto edgePair = boost::edges(motionGraph);
-        auto edgeIt = edgePair.first;
-        auto edgeEnd = edgePair.second;
-        auto edgePropertyMap = boost::get(boost::edge_bundle, motionGraph);
-        for (; edgeIt != edgeEnd; ++edgeIt) {
-            edges.push_back(motionGraph[*edgeIt]);
-            //        MGEdgeProperty edgeProperty = edgePropertyMap[edgePair.first];
-            //        edges.push_back(motionGraph[edge_descriptor]);
-        }
-    }
-
-    SFMLDrawUtils::drawPaths(fStarSet, edges, "Paths");
-    MotionSchedule ms =  WSMotionGraphSolver::solveMotionGraphs(mgs);
-
-    StringUtils::printMotionSteps(ms);
+//    StringUtils::printMotionSteps(ms);
 
 /*
  * Motion graph:

@@ -21,13 +21,13 @@ std::unordered_map<std::string, Motion_Graph> WSMotionGraphGenerator::getMotionG
         if(fSpaceComp.startConfigurations.empty()) {
             continue; //Irrelevant free space component
         }
-        std::cout << "Vertices for" << fSpaceComp.freeSpaceId << std::endl;
+        //std::cout << "Vertices for" << fSpaceComp.freeSpaceId << std::endl;
         Motion_Graph& mg = fSpaceId2motionGraph[fSpaceComp.freeSpaceId];
         insertVertices(mg, fSpaceComp.startConfigurations, fSpaceComp.targetConfigurations, stIds2Vertices);
     }
 
     for(const auto& fStarComp : fStarComps){
-        std::cout << "Edges for" << fStarComp.parent.freeSpaceId << std::endl;
+        //std::cout << "Edges for" << fStarComp.parent.freeSpaceId << std::endl;
         Motion_Graph& mg = fSpaceId2motionGraph[fStarComp.parent.freeSpaceId];
         insertEdges(mg, fStarComp, stIds2Vertices);
     }
@@ -152,9 +152,9 @@ void WSMotionGraphGenerator::generateListEdges(Motion_Graph& motionGraph, const 
                         });
                     }
 
-                    std::cout << corner.x() << " ; "<<lastCorner.x() << std::endl;
+                    //std::cout << corner.x() << " ; "<<lastCorner.x() << std::endl;
                     for(const RepPoint& rayRepPoint : rayRepPoints) {
-                        std::cout << motionGraph[rayRepPoint.forVertex].id << " ; "<<rayRepPoint.location.x()<<" ; "<< rayRepPoint.location.y() << std::endl;
+                        //std::cout << motionGraph[rayRepPoint.forVertex].id << " ; "<<rayRepPoint.location.x()<<" ; "<< rayRepPoint.location.y() << std::endl;
                         sortedRepPoints.push_back(rayRepPoint);
                     }
                 }

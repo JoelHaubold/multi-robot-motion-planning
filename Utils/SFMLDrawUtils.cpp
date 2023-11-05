@@ -6,15 +6,15 @@
 #include "../constants.h"
 #include "../mytypedefs.h"
 #include "Utils.h"
-#include <QtMath>
+//#include <QtMath>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/graph_traits.hpp>
-#include <cmath>
 
 static const int UPSCALE_FACTOR = 8;
 static const double BORDER_FACTOR = 1.6;
 static sf::Font font;
 static bool loadedFont;
+const double PI = 3.14159265358979323846;
 
 void SFMLDrawUtils::drawPolygon_2(const Polygon_2& toDraw, const std::string& name)
 {
@@ -226,7 +226,7 @@ void SFMLDrawUtils::drawPaths(const std::vector<FStarComponent> &toDraw, const s
             sf::Vector2f point2 = getUpscaledVector(pathSegment.target());
 
             sf::Vector2f direction = point2 - point1;
-            float rotation = std::atan2(direction.y, direction.x) * (180.0f / M_PI);
+            float rotation = std::atan2(direction.y, direction.x) * (180.0f / PI);
             float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
 
             sf::RectangleShape line(sf::Vector2f(length, 2.0f));
