@@ -11,7 +11,9 @@
 //#include "WellSeparatedSolver/WSMotionGraphSolver.h"
 //#include "DrawUtils.h"
 //#include <QApplication>
+#include "runtimeTestValues.h"
 #include "WellSeparatedSolver/WSSolver.h"
+#include "RandomGenerator.h"
 
 
 //#ifdef CGAL_USE_GMP
@@ -54,6 +56,11 @@
 int main(int argc, char *argv[])
 {
 //    QApplication app(argc, argv);
+
+    if(PRE_SET_SEED) {
+        RandomGenerator::setSeed(PRE_SET_SEED.get());
+    }
+
     WSSolver::doMRMPRuntimeTest();
 
     //RandomGenerator::setSeed(900439196);

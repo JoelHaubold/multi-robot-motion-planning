@@ -95,19 +95,26 @@ struct TestRunReport{
     double theoRuntimebound;
 };
 
-//TODO: Find source for ?infinite? loop
 void WSSolver::doMRMPRuntimeTest()
 {
-    std::cout << "Starting" << std::endl;
+    std::cerr << "Starting Tests using seed: "<< RandomGenerator::getSeed() << std::endl;
     std::vector<TestRunReport> reports;
+    std::vector<unsigned int> seeds;
+    seeds.reserve(REPETITIONS);
+    for(int i = 0; i < REPETITIONS; i++) {
+        seeds.push_back(RandomGenerator::getRandomInt(0, std::numeric_limits<int>::max()));
+    }
+
+
     for(const auto& workspaceComplexity : WORKSPACE_COMPLEXITY) {
         for(const auto& workspaceSize : MAX_WORKSPACE_SIZE) {
-            for(const auto& nmbrStartConfs : NMBR_START_POS) { //TODO: Set random seed (Based on current seed to make repetible) <<<- Probably not neccessary, since Random generator is not reset <<- Problematic because grid search results are different from independent runs -> Reset random generator on each iteration
+            for(const auto& nmbrStartConfs : NMBR_START_POS) {
                 long long sumFSTime = 0;
                 long long sumGWTime = 0;
                 const double runtimeBound = Utils::getRuntimeBound(workspaceComplexity, nmbrStartConfs);
                 for(int i = 0; i < REPETITIONS; i++)
                 {
+                    RandomGenerator::setSeed(seeds[i]);
                     runMRMPProblem(workspaceComplexity, workspaceSize, nmbrStartConfs);
                     TimeReport tr= MRMPTimer::resetAndGetReport();
                     sumFSTime += tr.freeSpaceTime;

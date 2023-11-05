@@ -14,7 +14,6 @@ Polygon_2 WorkspaceGenerator::generateRandomPolygon(int workspaceComplexity, dou
   std::set<Point_2>   point_set;
   //CGAL::Random         rand;
   std::cerr << "Seed = " <<  RandomGenerator::getSeed() << std::endl;
-  std::cerr << "Seed = " <<  RandomGenerator::getSeed() << std::endl;
   int size = workspaceComplexity;//RandomGenerator::getRandomInt(4, WORKSPACE_COMPLEXITY);
   std::cerr << "Generating workspace of size = " <<  size << std::endl;
   // copy size points from the generator, eliminating duplicates, so the
