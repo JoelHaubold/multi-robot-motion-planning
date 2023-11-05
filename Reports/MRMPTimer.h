@@ -6,13 +6,10 @@
 #define MRMP_IMPLEMENTATION_MRMPTIMER_H
 
 
-#include "mytypedefs.h"
+#include "../mytypedefs.h"
 
 
-struct TimeReport{
-    long long freeSpaceTime;
-    long long graphWorkTime;
-};
+
 class MRMPTimer
 {
 public:

@@ -14,7 +14,7 @@ const int ROBOT_SIZE = 2;
 const int NMBR_POINT_TRIES = 20000;
 const int NMBR_PAIR_POINT_TRIES = 100;
 
-const bool GENERATE_DEBUG_DRAWINGS = true;
+const bool GENERATE_DEBUG_DRAWINGS = false;
 
 const double MONOCHROMATIC_SEPARATION = 4.0;
 const double BICHROMATIC_SEPARATION = USE_WS_SOLVER ? 4.0 : 2.0;

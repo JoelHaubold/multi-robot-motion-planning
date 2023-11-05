@@ -3,7 +3,7 @@
 //
 
 #include "MRMPTimer.h"
-#include "mytypedefs.h"
+#include "../mytypedefs.h"
 
 static std::chrono::high_resolution_clock::time_point fsStartTime;
 static std::chrono::high_resolution_clock::time_point fsEndTime;
@@ -32,4 +32,3 @@ void MRMPTimer::setEndOfGraphWork()
 {
     gwEndTime = std::chrono::high_resolution_clock::now();
 }
-

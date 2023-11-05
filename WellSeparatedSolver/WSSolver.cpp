@@ -4,17 +4,18 @@
 
 
 #include "WSSolver.h"
+#include "../RandomGenerator.h"
+#include "../Reports/MRMPTimer.h"
+#include "../Utils/GraphvizDrawUtils.h"
+#include "../Utils/SFMLDrawUtils.h"
+#include "../Utils/StringUtils.h"
+#include "../Utils/Utils.h"
+#include "../WorkspaceGenarator.h"
 #include "../mytypedefs.h"
 #include "WSFreeSpaceGenerator.h"
 #include "WSMotionGraphGenerator.h"
-#include "../WorkspaceGenarator.h"
-#include "../Utils/SFMLDrawUtils.h"
-#include "../Utils/GraphvizDrawUtils.h"
-#include "../Utils/StringUtils.h"
-#include "../RandomGenerator.h"
 #include "WSMotionGraphSolver.h"
-#include "../Utils/Utils.h"
-#include "../MRMPTimer.h"
+#include "../Reports/ReportOutput.h"
 
 void WSSolver::runMRMPProblem(int workspaceComplexity, double maxWorkspaceSize, int numberStartPositions)
 {
@@ -88,13 +89,6 @@ void WSSolver::runMRMPProblem(int workspaceComplexity, double maxWorkspaceSize, 
 
 }
 
-struct TestRunReport{
-    TestRunReport(const TimeReport &timeReport, double theoRuntimebound) : timeReport(timeReport), theoRuntimebound(theoRuntimebound) {}
-
-    TimeReport timeReport;
-    double theoRuntimebound;
-};
-
 void WSSolver::doMRMPRuntimeTest()
 {
     std::cerr << "Starting Tests using seed: "<< RandomGenerator::getSeed() << std::endl;
@@ -105,29 +99,27 @@ void WSSolver::doMRMPRuntimeTest()
         seeds.push_back(RandomGenerator::getRandomInt(0, std::numeric_limits<int>::max()));
     }
 
-
     for(const auto& workspaceComplexity : WORKSPACE_COMPLEXITY) {
-        for(const auto& workspaceSize : MAX_WORKSPACE_SIZE) {
-            for(const auto& nmbrStartConfs : NMBR_START_POS) {
-                long long sumFSTime = 0;
-                long long sumGWTime = 0;
-                const double runtimeBound = Utils::getRuntimeBound(workspaceComplexity, nmbrStartConfs);
-                for(int i = 0; i < REPETITIONS; i++)
-                {
-                    RandomGenerator::setSeed(seeds[i]);
-                    runMRMPProblem(workspaceComplexity, workspaceSize, nmbrStartConfs);
-                    TimeReport tr= MRMPTimer::resetAndGetReport();
-                    sumFSTime += tr.freeSpaceTime;
-                    sumGWTime += tr.graphWorkTime;
-                }
-                long long avgFSTime = sumFSTime/REPETITIONS;
-                long long avgGWTime = sumGWTime/REPETITIONS;
-                reports.emplace_back(TimeReport{avgFSTime, avgGWTime}, runtimeBound);
+        for(const auto& nmbrStartConfs : NMBR_START_POS) {
+            long long sumFSTime = 0;
+            long long sumGWTime = 0;
+            const double runtimeBound = Utils::getRuntimeBound(workspaceComplexity, nmbrStartConfs);
+            for(int i = 0; i < REPETITIONS; i++)
+            {
+                RandomGenerator::setSeed(seeds[i]);
+                runMRMPProblem(workspaceComplexity, MAX_WORKSPACE_SIZE, nmbrStartConfs);
+                TimeReport tr= MRMPTimer::resetAndGetReport();
+                sumFSTime += tr.freeSpaceTime;
+                sumGWTime += tr.graphWorkTime;
             }
+            long long avgFSTime = sumFSTime/REPETITIONS;
+            long long avgGWTime = sumGWTime/REPETITIONS;
+            reports.emplace_back(TimeReport{avgFSTime, avgGWTime}, runtimeBound);
         }
     }
-    for(const auto& report: reports) {
-        std::cout << "Time taken by function: " << report.timeReport.freeSpaceTime << "; " << report.timeReport.graphWorkTime << " microseconds" << std::endl;
-        std::cout << "Normalized: " << report.timeReport.freeSpaceTime/ report.theoRuntimebound << "; " << report.timeReport.graphWorkTime/ report.theoRuntimebound << std::endl;
-    }
+    ReportOutput::printAndSaveReports(reports);
+//    for(const auto& report: reports) {
+//        std::cout << "Time taken by function: " << report.timeReport.freeSpaceTime << "; " << report.timeReport.graphWorkTime << " microseconds" << std::endl;
+//        std::cout << "Normalized: " << report.timeReport.freeSpaceTime/ report.theoRuntimebound << "; " << report.timeReport.graphWorkTime/ report.theoRuntimebound << std::endl;
+//    }
 }

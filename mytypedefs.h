@@ -110,4 +110,18 @@ struct MotionSchedule{
     std::string motionSchedule;
 };
 
+struct TimeReport{
+    TimeReport(long long freeSpaceTime, long long graphWorkTime) : freeSpaceTime(freeSpaceTime), graphWorkTime(graphWorkTime), totalTime(freeSpaceTime + graphWorkTime) {};
+    const long long freeSpaceTime;
+    const long long graphWorkTime;
+    const long long totalTime;
+};
+
+struct TestRunReport{
+    TestRunReport(const TimeReport &timeReport, double theoRuntimebound) : timeReport(timeReport), theoRuntimebound(theoRuntimebound) {}
+
+    TimeReport timeReport;
+    double theoRuntimebound;
+};
+
 #endif//MRMP_IMPLEMENTATION_MYTYPEDEFS_H
