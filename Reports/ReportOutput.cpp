@@ -3,7 +3,7 @@
 //
 
 #include "ReportOutput.h"
-#include "../runtimeTestValues.h"
+#include "../testParameter.h"
 void ReportOutput::printAndSaveReports(const std::vector<TestRunReport>& reports)
 {
     for(int i = -1; i < static_cast<int>(WORKSPACE_COMPLEXITY.size()); i++) {
@@ -15,7 +15,7 @@ void ReportOutput::printAndSaveReports(const std::vector<TestRunReport>& reports
             } else if(j == -1) {
                 std::cout << WORKSPACE_COMPLEXITY[i] << "\t";
             } else {
-                std::cout << reports[i+j].timeReport.totalTime << "\t";
+                std::cout << reports[i*NMBR_START_POS.size()+j].timeReport.totalTime << "\t";
             }
 
         }
@@ -31,7 +31,7 @@ void ReportOutput::printAndSaveReports(const std::vector<TestRunReport>& reports
             } else if(j == -1) {
                 std::cout << WORKSPACE_COMPLEXITY[i] << "\t";
             } else {
-                std::cout << reports[i+j].timeReport.totalTime/ reports[i+j].theoRuntimebound << "\t";
+                std::cout << std::fixed << std::setprecision(4) << reports[i*NMBR_START_POS.size()+j].timeReport.totalTime/ reports[i*NMBR_START_POS.size()+j].theoRuntimebound << "\t";
             }
 
         }
@@ -47,7 +47,7 @@ void ReportOutput::printAndSaveReports(const std::vector<TestRunReport>& reports
             } else if(j == -1) {
                 std::cout << WORKSPACE_COMPLEXITY[i] << "\t";
             } else {
-                std::cout << reports[i+j].timeReport.totalTime/ std::pow(NMBR_START_POS[j],2) << "\t";
+                std::cout << std::fixed << std::setprecision(4) << reports[i*NMBR_START_POS.size()+j].timeReport.totalTime/ std::pow(NMBR_START_POS[j],2) << "\t";
             }
 
         }
@@ -62,7 +62,7 @@ void ReportOutput::printAndSaveReports(const std::vector<TestRunReport>& reports
             } else if(j == -1) {
                 std::cout << WORKSPACE_COMPLEXITY[i] << "\t";
             } else {
-                std::cout << reports[i+j].timeReport.totalTime/ (WORKSPACE_COMPLEXITY[i]* std::log(WORKSPACE_COMPLEXITY[i])) << "\t";
+                std::cout << std::fixed << std::setprecision(4) << reports[i*NMBR_START_POS.size()+j].timeReport.totalTime/ (WORKSPACE_COMPLEXITY[i]* std::log(WORKSPACE_COMPLEXITY[i])) << "\t";
             }
 
         }

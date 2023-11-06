@@ -6,21 +6,66 @@
 //#include "../Utils/GraphvizDrawUtils.h"
 #include "../Utils/StringUtils.h"
 #include "../mytypedefs.h"
+#include <boost/graph/adjacency_list.hpp>
 #include <exception>
 
-
-MotionSchedule WSMotionGraphSolver::solveMotionGraphs(std::unordered_map<std::string, Motion_Graph> &mgs)
+/*
+ * TODO:
+ * Iterate through dif vertices
+ * If no incoming edges -> resolve
+ * If incoming edges put on stack and try connected vertex
+ * Then resolve stack
+ * Continue with iteration but ignore already resolved vertices [set of fSpaceId : resolved]
+ */
+MotionSchedule WSMotionGraphSolver::solveMotionGraphs(std::unordered_map<std::string, Motion_Graph> &mgs, const DirectedInterferenceForest& dif)
 {
+    std::vector<std::string> mgOrder = getOrderFromDIForest(dif);
     MotionSchedule ms;
-    for(const auto& pair : mgs) {
-        Motion_Graph mg = pair.second;
+    for(const auto& fSpaceId : mgOrder) {
+        Motion_Graph mg = mgs[fSpaceId];
         solveMotionGraphComponent(mg, ms);
     }
+//    for(const auto& pair : mgs) {
+//        Motion_Graph mg = pair.second;
+//        solveMotionGraphComponent(mg, ms);
+//    }
     //std::cout << ms.motionSchedule << std::endl;
     return ms;
 }
 
-//Use MGIdToVertex to get vertices belonging to each free space component
+std::vector<std::string> WSMotionGraphSolver::getOrderFromDIForest(const DirectedInterferenceForest& dif)
+{
+    std::vector<std::string> resultVector;
+    for(const DIFVertex& difVertex : dif.vertex_set()) {
+        if(boost::in_degree(difVertex, dif) > 0) {
+            //Has parent in directed-interference forest -> Resolve after parent
+            continue;
+        } else if(boost::degree(difVertex, dif) == 0) {
+            //Is isolated -> Resolve whenever
+            resultVector.push_back(dif[difVertex].fSpaceId);
+            continue;
+        } else {
+            // Is parent of other vertices -> Resolve itself then resolve children
+            getOrderFromDITree(resultVector, dif, difVertex);
+        }
+
+    }
+    return resultVector;
+}
+
+void WSMotionGraphSolver::getOrderFromDITree(std::vector<std::string>& resultVector, const DirectedInterferenceForest& dif, const DIFVertex& difVertex)
+{
+    resultVector.push_back(dif[difVertex].fSpaceId);
+
+    //Resolve children
+    DirectedInterferenceForest::out_edge_iterator in_edge_it, in_edge_end;
+    for (boost::tie(in_edge_it, in_edge_end) = boost::out_edges(difVertex, dif); in_edge_it != in_edge_end; ++in_edge_it) {
+        DIFVertex targetVertex = boost::target(*in_edge_it, dif);
+        getOrderFromDITree(resultVector, dif, targetVertex);
+    }
+}
+
+//Use STConfId2MGVertex to get vertices belonging to each free space component
 void WSMotionGraphSolver::solveMotionGraphComponent(Motion_Graph& mg, MotionSchedule& ms)
 {
 

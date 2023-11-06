@@ -11,9 +11,9 @@
 //#include "WellSeparatedSolver/WSMotionGraphSolver.h"
 //#include "DrawUtils.h"
 //#include <QApplication>
-#include "runtimeTestValues.h"
-#include "WellSeparatedSolver/WSSolver.h"
 #include "RandomGenerator.h"
+#include "WellSeparatedSolver/WSSolver.h"
+#include "testParameter.h"
 
 
 //#ifdef CGAL_USE_GMP
@@ -39,9 +39,10 @@
 //const int WORKSPACE_COMPLEXITY = 50;
 
 /*
- * TODO: Directed-interference forest from F
  * TODO: Reimplement intelligent aura traversal
- *
+ * TODO: Test special cases as in disk shaped master thesis
+ * TODO: Output validator
+ * TODO: Generate new workspace polygon if point limit is reached
  */
 
 //try {
@@ -57,6 +58,12 @@ int main(int argc, char *argv[])
 {
 //    QApplication app(argc, argv);
 
+//    std::vector<int> randomArray{1,2,3,4};
+//    if(-1 > randomArray.size()) {
+//        std::cout << "Wat" << std::endl;
+//        return 1;
+//    }
+
     if(PRE_SET_SEED) {
         RandomGenerator::setSeed(PRE_SET_SEED.get());
     }
@@ -64,7 +71,7 @@ int main(int argc, char *argv[])
     WSSolver::doMRMPRuntimeTest();
 
     //RandomGenerator::setSeed(900439196);
-//    Polygon_2 workspacePolygon = WorkspaceGenerator::generateRandomPolygon();
+//    Polygon_2 workspacePolygon = MRMPInputGenerator::generateRandomPolygon();
 ////    CGAL::draw(workspacePolygon);
 ////    SFMLDrawUtils::drawPolygon_2(workspacePolygon, "workspace");
 //
@@ -74,7 +81,7 @@ int main(int argc, char *argv[])
 ////    SFMLDrawUtils::drawFreeSpace(freeSpaceComponents, "freeSpace");
 //
 //
-//    STConfigurations stConfigurations = WorkspaceGenerator::getStartAndTargetConfigurations(freeSpaceComponents);
+//    STConfigurations stConfigurations = MRMPInputGenerator::getStartAndTargetConfigurations(freeSpaceComponents);
 //    WSFreeSpaceGenerator::associateSTConfs(freeSpaceComponents, stConfigurations.startConfigurations, stConfigurations.targetConfigurations);
 //    std::vector<FStarComponent> fStarSet = WSFreeSpaceGenerator::getFStar2(freeSpaceComponents);
 ////    Polygon_set_2 set;
@@ -91,7 +98,7 @@ int main(int argc, char *argv[])
 //
 ////    Motion_Graph motionGraph;
 ////
-////    const MGIdToVertex id2Vertex = WSMotionGraphGenerator::insertVertices(motionGraph, stConfigurations);
+////    const STConfId2MGVertex id2Vertex = WSMotionGraphGenerator::insertVertices(motionGraph, stConfigurations);
 ////    WSMotionGraphGenerator::insertEdges(motionGraph, fStarSet, id2Vertex);
 //
 //    std::unordered_map<std::string, Motion_Graph> mgs= WSMotionGraphGenerator::getMotionGraphs(freeSpaceComponents,fStarSet);

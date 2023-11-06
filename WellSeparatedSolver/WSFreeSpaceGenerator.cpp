@@ -16,7 +16,6 @@ Polygon_wh_2 WSFreeSpaceGenerator::getObstaclePolygon(const Polygon_2& boundingB
   Pwh_list_2 obstaclePolygons;
   CGAL::difference(boundingBox, workspacePolygon,
                    std::back_inserter(obstaclePolygons));
-  std::cout << obstaclePolygons.size() << std::endl;
   uncheckedObstaclePolygon = *obstaclePolygons.begin();
   if(uncheckedObstaclePolygon.number_of_holes() != 1) {
     throw std::runtime_error("Obstacle polygon should have exactly one hole" );
@@ -193,7 +192,7 @@ std::vector<FStarComponent> WSFreeSpaceGenerator::getFStar2(const std::vector<Fr
 
     }
 
-    std::cout << std::to_string(fStarComponents.size()) << std::endl;
+    //std::cout << std::to_string(fStarComponents.size()) << std::endl;
 
     return fStarComponents;
 }

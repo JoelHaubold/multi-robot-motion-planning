@@ -10,11 +10,12 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/graph_traits.hpp>
 
-static const int UPSCALE_FACTOR = 8;
+static const int UPSCALE_FACTOR = 6;
+static const int FONT_SIZE = UPSCALE_FACTOR*2-1;
 static const double BORDER_FACTOR = 1.6;
+const double PI = 3.14159265358979323846;
 static sf::Font font;
 static bool loadedFont;
-const double PI = 3.14159265358979323846;
 
 void SFMLDrawUtils::drawPolygon_2(const Polygon_2& toDraw, const std::string& name)
 {
@@ -134,13 +135,15 @@ void SFMLDrawUtils::drawFStar(const std::vector<FStarComponent> &toDraw, const s
 
         for(const auto& sConf: fComponent.adjacentSConfs) {
             window.draw(getCube(sConf, true, width, height));
-            window.draw(getText(sConf.location, sConf.id, width, height));
+            std::string label = sConf.id + "\n" + fComponent.parent.freeSpaceId;
+            window.draw(getText(sConf.location, label, width, height));
             //window.draw(getText(sConf.location, sConf.id, width, height));
         }
 
         for(const auto& tConf: fComponent.adjacentTConfs) {
             window.draw(getCube(tConf, false, width, height));
-            window.draw(getText(tConf.location, tConf.id, width, height));
+            std::string label = tConf.id + "\n" + fComponent.parent.freeSpaceId;
+            window.draw(getText(tConf.location, label, width, height));
         }
 
     }
@@ -182,6 +185,7 @@ void SFMLDrawUtils::drawPaths(const std::vector<FStarComponent> &toDraw, const s
     window.clear(sf::Color::White);
 
 
+    //Draw Start & Target auras
     for (const auto& fComponent : toDraw)
     {
         sf::ConvexShape polygon = getSFPolygon(fComponent.fStarPolygon.outer_boundary(), width, height);
@@ -189,13 +193,10 @@ void SFMLDrawUtils::drawPaths(const std::vector<FStarComponent> &toDraw, const s
 
         for(const auto& sConf: fComponent.adjacentSConfs) {
             window.draw(getCube(sConf, true, width, height));
-            window.draw(getText(sConf.location, sConf.id, width, height));
-            //window.draw(getText(sConf.location, sConf.id, width, height));
         }
 
         for(const auto& tConf: fComponent.adjacentTConfs) {
             window.draw(getCube(tConf, false, width, height));
-            window.draw(getText(tConf.location, tConf.id, width, height));
         }
 
     }
@@ -218,6 +219,7 @@ void SFMLDrawUtils::drawPaths(const std::vector<FStarComponent> &toDraw, const s
 //    }
 //    window.draw(lines);
 
+    //Draw paths
     for (const auto& edgeProps : edges) {
         //std::cout << "Drawing edge for: " << edgeProps.pathStartId<< std::endl;
         std::vector<Segment_2> edgePath = edgeProps.pathLineSegments;
@@ -235,6 +237,20 @@ void SFMLDrawUtils::drawPaths(const std::vector<FStarComponent> &toDraw, const s
             line.setFillColor(sf::Color::Blue);
 
             window.draw(line);
+        }
+    }
+
+    //Draw labels
+    for (const auto& fComponent : toDraw)
+    {
+        for(const auto& sConf: fComponent.adjacentSConfs) {
+            std::string label = sConf.id + "\n" + fComponent.parent.freeSpaceId;
+            window.draw(getText(sConf.location, label, width, height));
+        }
+
+        for(const auto& tConf: fComponent.adjacentTConfs) {
+            std::string label = tConf.id + "\n" + fComponent.parent.freeSpaceId;
+            window.draw(getText(tConf.location, label, width, height));
         }
     }
 
@@ -328,13 +344,13 @@ sf::Text SFMLDrawUtils::getText(const Point_2& location, const std::string& text
         font.loadFromFile("arial.ttf");
         loadedFont = true;
     }
-    sf::Text toDraw(text, font, 16);
+    sf::Text toDraw(text, font, FONT_SIZE);
     toDraw.setFillColor(sf::Color::Black);
     sf::Vector2f relativePos = getUpscaledVector(location);
     const float xCenter = width/2;
     const float yCenter = height/2;
     toDraw.setPosition(relativePos + sf::Vector2f{xCenter - ROBOT_SIZE*UPSCALE_FACTOR, yCenter - ROBOT_SIZE*UPSCALE_FACTOR});
-    sf::Vector2f actV = toDraw.getPosition();
+//    sf::Vector2f actV = toDraw.getPosition();
 //    std::cout << "Text:" + std::to_string(relativePos.x) + ","+ std::to_string(relativePos.y)<< std::endl;
 //    std::cout << "Text:" + std::to_string(xCenter) + ","+ std::to_string(yCenter)<< std::endl;
 //    std::cout << "Text:" + std::to_string(actV.x) + ","+ std::to_string(actV.y)<< std::endl;

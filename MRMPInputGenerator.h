@@ -2,13 +2,14 @@
 // Created by joelh on 17/10/2023.
 //
 
-#ifndef MRMP_IMPLEMENTATION_WORKSPACEGENARATOR_H
-#define MRMP_IMPLEMENTATION_WORKSPACEGENARATOR_H
+#ifndef MRMP_IMPLEMENTATION_MRMPINPUTGENERATOR_H
+#define MRMP_IMPLEMENTATION_MRMPINPUTGENERATOR_H
 
 #include "mytypedefs.h"
 
 //TODO: Rename to ~RequirementsGenerator
-class WorkspaceGenerator {
+class MRMPInputGenerator
+{
 public:
     static Polygon_2 generateRandomPolygon(int workspaceComplexity, double workspaceSize);
     static STConfigurations getStartAndTargetConfigurations(const std::vector<FreeSpaceComponent>& containingPolygons, int nmbrStartConfs);
@@ -22,4 +23,4 @@ public:
 };
 
 
-#endif//MRMP_IMPLEMENTATION_WORKSPACEGENARATOR_H
+#endif//MRMP_IMPLEMENTATION_MRMPINPUTGENERATOR_H

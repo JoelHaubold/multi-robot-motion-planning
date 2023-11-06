@@ -2,23 +2,23 @@
 // Created by joelh on 17/10/2023.
 //
 
-#include "WorkspaceGenarator.h"
+#include "MRMPInputGenerator.h"
 #include <CGAL/random_polygon_2.h>
 #include <iostream>
 //#include "constants.h"
 #include "RandomGenerator.h"
 #include <functional>
 
-Polygon_2 WorkspaceGenerator::generateRandomPolygon(int workspaceComplexity, double workspaceSize) {
+Polygon_2 MRMPInputGenerator::generateRandomPolygon(int workspaceComplexity, double workspaceSize) {
   Polygon_2            polygon;
   std::set<Point_2>   point_set;
   //CGAL::Random         rand;
-  std::cerr << "Seed = " <<  RandomGenerator::getSeed() << std::endl;
+  std::cout << "Seed = " <<  RandomGenerator::getSeed() << std::endl;
   int size = workspaceComplexity;//RandomGenerator::getRandomInt(4, WORKSPACE_COMPLEXITY);
-  std::cerr << "Generating workspace of size = " <<  size << std::endl;
+  std::cout << "Generating workspace of size = " <<  size << std::endl;
   // copy size points from the generator, eliminating duplicates, so the
   // polygon will have <= size vertices
-//  CGAL::copy_n_unique(WorkspaceGenerator::Point_generator(RADIUS), size,
+//  CGAL::copy_n_unique(MRMPInputGenerator::Point_generator(RADIUS), size,
 //                      std::back_inserter(point_set));
   while(point_set.size() < size) {
       double x = RandomGenerator::getRandomDouble(- workspaceSize/2, workspaceSize/2);
@@ -39,7 +39,7 @@ Polygon_2 WorkspaceGenerator::generateRandomPolygon(int workspaceComplexity, dou
   return polygon;
 }
 
-//std::list<Point_2> WorkspaceGenerator::getRandomPoints(const Polygon_2& containingPolygon, const int& nmbrPoints) {
+//std::list<Point_2> MRMPInputGenerator::getRandomPoints(const Polygon_2& containingPolygon, const int& nmbrPoints) {
 //  CGAL::Bbox_2 bbox = containingPolygon.bbox();
 //  std::list<Point_2>   point_set;
 //  for (int i = 0; i < nmbrPoints; i++)
@@ -60,7 +60,7 @@ Polygon_2 WorkspaceGenerator::generateRandomPolygon(int workspaceComplexity, dou
 //  return point_set;
 //}
 
-//std::list<Point_2> WorkspaceGenerator::getRandomPoints(const std::vector<Polygon_2>& containingPolygons) {
+//std::list<Point_2> MRMPInputGenerator::getRandomPoints(const std::vector<Polygon_2>& containingPolygons) {
 //    double xmin = 0.0;
 //    double xmax = 0.0;
 //    double ymin = 0.0;
@@ -109,7 +109,7 @@ Polygon_2 WorkspaceGenerator::generateRandomPolygon(int workspaceComplexity, dou
 
 
 
-STConfigurations WorkspaceGenerator::getStartAndTargetConfigurations(const std::vector<FreeSpaceComponent>& containingPolygons, int numberStartConfigs) {
+STConfigurations MRMPInputGenerator::getStartAndTargetConfigurations(const std::vector<FreeSpaceComponent>& containingPolygons, int numberStartConfigs) {
     //  std::vector<std::vector<Point_2>> startConfsPerComponent;
     //  std::vector<std::vector<Point_2>> targetConfsPerComponent;
     //
@@ -197,14 +197,14 @@ STConfigurations WorkspaceGenerator::getStartAndTargetConfigurations(const std::
     return STConfigurations{startConfs, targetConfs};
 }
 
-Point_2 WorkspaceGenerator::getRandomPoint(double xmin, double xmax, double ymin, double ymax) {
+Point_2 MRMPInputGenerator::getRandomPoint(double xmin, double xmax, double ymin, double ymax) {
     K::FT randomX = RandomGenerator::getRandomDouble(xmin, xmax);
     K::FT randomY = RandomGenerator::getRandomDouble(ymin, ymax);
 
     return Point_2{randomX, randomY};
 }
 
-bool WorkspaceGenerator::conformsToChromaticDistance(const Point_2& conf, const std::vector<Point_2>& startConfs, const std::vector<Point_2>& targetConfs, bool pointIsStartConf) {
+bool MRMPInputGenerator::conformsToChromaticDistance(const Point_2& conf, const std::vector<Point_2>& startConfs, const std::vector<Point_2>& targetConfs, bool pointIsStartConf) {
     if(pointIsStartConf) {
         return conformsToChromaticDistance(conf, startConfs, targetConfs);
     } else {
@@ -212,7 +212,7 @@ bool WorkspaceGenerator::conformsToChromaticDistance(const Point_2& conf, const 
     }
 }
 
-bool WorkspaceGenerator::conformsToChromaticDistance(const Point_2& conf, const std::vector<Point_2>& sameTypeConfs, const std::vector<Point_2>& differentTypeConfs) {
+bool MRMPInputGenerator::conformsToChromaticDistance(const Point_2& conf, const std::vector<Point_2>& sameTypeConfs, const std::vector<Point_2>& differentTypeConfs) {
 //    bool monochromaticlySeparated = std::all_of(sameTypeConfs.begin(), sameTypeConfs.end(), [&conf](const Point_2& stConf){
 //        return CGAL::abs(conf.x() - stConf.x()) < MONOCHROMATIC_SEPARATION && CGAL::abs(conf.y() - stConf.y()) < MONOCHROMATIC_SEPARATION;
 //    });
@@ -234,7 +234,7 @@ bool WorkspaceGenerator::conformsToChromaticDistance(const Point_2& conf, const 
     return true;
 }
 
-//std::vector<int> WorkspaceGenerator::getRandomPointDistribution(const int& nmbrOfSections, const int& nmbrPoints) {
+//std::vector<int> MRMPInputGenerator::getRandomPointDistribution(const int& nmbrOfSections, const int& nmbrPoints) {
 //  std::vector<int> pointsInSections(nmbrOfSections, 0); // Initialize all baskets with 0 apples
 //
 //  // Distribute apples randomly into baskets

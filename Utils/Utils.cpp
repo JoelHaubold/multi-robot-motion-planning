@@ -14,9 +14,6 @@ Polygon_2 Utils::generateBoundingBox(const CGAL::Bbox_2& bbox) {
     K::FT maxY = bbox.ymax() + OBSTACLE_SPACE_OFFSET;
 
 
-
-    std::cout << maxY << std::endl;
-
     // Create a bounding box that covers the entire plane
     Polygon_2 boundingBox;
     boundingBox.push_back(Point_2(minX, minY));

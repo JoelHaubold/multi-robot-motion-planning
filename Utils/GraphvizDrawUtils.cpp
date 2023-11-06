@@ -8,9 +8,10 @@
 #include "../mytypedefs.h"
 
 template <class MGraph>
-class VertexWriter {
+class MGVertexWriter
+{
 public:
-    explicit VertexWriter(const MGraph& _mGraph) : mGraph(_mGraph) {}
+    explicit MGVertexWriter(const MGraph& _mGraph) : mGraph(_mGraph) {}
     template <class Vertex>
     void operator()(std::ostream& out, const Vertex& v) const {
         out << "[label=\"" << mGraph[v].id << "\",style=filled, fillcolor="<< (mGraph[v].isStartVertex ? "chartreuse4" : "darkorchid2") <<  "]";
@@ -19,26 +20,39 @@ private:
     const MGraph& mGraph;
 };
 
-struct VertexLabelWriter {
-    const Motion_Graph& motionGraph;  // The graph to write properties from.
-
-    VertexLabelWriter(const Motion_Graph& g) : motionGraph(g) {}
-
-    void operator()(std::ostream& out, const MGVertex & v) const {
-        MGVertexProperty vertexProps = motionGraph[v];
-        out << "[label=\"" << vertexProps.id << "\"]";  // Use the label property.
+template <class DIForest>
+class DIFVertexWriter {
+public:
+    explicit DIFVertexWriter(const DIForest& _diForest) : diForest(_diForest) {}
+    template <class Vertex>
+    void operator()(std::ostream& out, const Vertex& v) const {
+        out << "[label=\"" << diForest[v].fSpaceId << "\",style=filled, fillcolor=cyan3]";
     }
+private:
+    const DIForest& diForest;
 };
 
-void GraphvizDrawUtils::drawMotionGraph(const Motion_Graph& motionGraph, std::string location)
+void GraphvizDrawUtils::drawMotionGraph(const Motion_Graph& motionGraph, const std::string& location)
 {
     std::ofstream dotFile(location);
     boost::dynamic_properties dp;
-    //dp.property("label", VertexWriter(motionGraph));
+    //dp.property("label", MGVertexWriter(motionGraph));
 
     //boost::make_vertex_attributes_writer(motionGraph);
-    VertexWriter<Motion_Graph> vw(motionGraph);
+    MGVertexWriter<Motion_Graph> vw(motionGraph);
     boost::write_graphviz(dotFile, motionGraph, vw);
+    dotFile.close();
+}
+
+void GraphvizDrawUtils::drawDIForest(const DirectedInterferenceForest& dif, const std::string& location)
+{
+    std::ofstream dotFile(location);
+    boost::dynamic_properties dp;
+    //dp.property("label", MGVertexWriter(motionGraph));
+
+    //boost::make_vertex_attributes_writer(motionGraph);
+    DIFVertexWriter<DirectedInterferenceForest> vw(dif);
+    boost::write_graphviz(dotFile, dif, vw);
     dotFile.close();
 }
 

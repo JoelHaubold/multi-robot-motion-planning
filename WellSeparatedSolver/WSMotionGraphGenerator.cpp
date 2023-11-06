@@ -16,7 +16,7 @@
 
 std::unordered_map<std::string, Motion_Graph> WSMotionGraphGenerator::getMotionGraphs(const std::vector<FreeSpaceComponent>& fSpaceComps, const std::vector<FStarComponent>& fStarComps) {
     std::unordered_map<std::string, Motion_Graph> fSpaceId2motionGraph;
-    MGIdToVertex stIds2Vertices;
+    STConfId2MGVertex stIds2Vertices;
     for(const auto& fSpaceComp : fSpaceComps) {
         if(fSpaceComp.startConfigurations.empty()) {
             continue; //Irrelevant free space component
@@ -34,7 +34,7 @@ std::unordered_map<std::string, Motion_Graph> WSMotionGraphGenerator::getMotionG
     return fSpaceId2motionGraph;
 }
 
-void WSMotionGraphGenerator::insertVertices(Motion_Graph &motionGraph, const std::vector<STConf>& startConfs, const std::vector<STConf>& targetConfs, MGIdToVertex &stId2Vertex)
+void WSMotionGraphGenerator::insertVertices(Motion_Graph &motionGraph, const std::vector<STConf>& startConfs, const std::vector<STConf>& targetConfs, STConfId2MGVertex &stId2Vertex)
 {
     std::for_each(startConfs.begin(), startConfs.end(), [&motionGraph, &stId2Vertex](const auto& startConf) {
         //Motion_Graph::vertex_descriptor vd = boost::add_vertex(motionGraph);
@@ -48,7 +48,7 @@ void WSMotionGraphGenerator::insertVertices(Motion_Graph &motionGraph, const std
     });
 }
 
-void WSMotionGraphGenerator::insertEdges(Motion_Graph& motionGraph, const FStarComponent& fStarComponent, const MGIdToVertex& id2Vertex)//, const Polygon_2& freeSpaceSet)
+void WSMotionGraphGenerator::insertEdges(Motion_Graph& motionGraph, const FStarComponent& fStarComponent, const STConfId2MGVertex & id2Vertex)//, const Polygon_2& freeSpaceSet)
 {
     std::vector<MGVertex> relevantVertices;
     for(const auto& sConf : fStarComponent.adjacentSConfs) {

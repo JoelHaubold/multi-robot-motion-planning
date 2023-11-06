@@ -5,7 +5,7 @@ project(mrmp_implementation)
 set(CMAKE_CXX_STANDARD 14)
 
 
-add_executable(mrmp_implementation main.cpp RandomGenerator.cpp RandomGenerator.h WorkspaceGenarator.cpp WorkspaceGenarator.h WellSeparatedSolver/WSFreeSpaceGenerator.cpp WellSeparatedSolver/WSFreeSpaceGenerator.h mytypedefs.h constants.h Utils/Utils.cpp Utils/Utils.h WellSeparatedSolver/WSMotionGraphGenerator.cpp WellSeparatedSolver/WSMotionGraphGenerator.h
+add_executable(mrmp_implementation main.cpp RandomGenerator.cpp RandomGenerator.h MRMPInputGenerator.cpp MRMPInputGenerator.h WellSeparatedSolver/WSFreeSpaceGenerator.cpp WellSeparatedSolver/WSFreeSpaceGenerator.h mytypedefs.h constants.h Utils/Utils.cpp Utils/Utils.h WellSeparatedSolver/WSMotionGraphGenerator.cpp WellSeparatedSolver/WSMotionGraphGenerator.h
         Utils/SFMLDrawUtils.cpp
         Utils/SFMLDrawUtils.h
         Utils/GraphvizDrawUtils.cpp
@@ -16,11 +16,14 @@ add_executable(mrmp_implementation main.cpp RandomGenerator.cpp RandomGenerator.
         Utils/StringUtils.h
         WellSeparatedSolver/WSSolver.cpp
         WellSeparatedSolver/WSSolver.h
-        runtimeTestValues.h
+        testParameter.h
         Reports/MRMPTimer.cpp
         Reports/MRMPTimer.h
         Reports/ReportOutput.cpp
-        Reports/ReportOutput.h)
+        Reports/ReportOutput.h
+        SharedSolverComponents/InterferenceForestGenerator.cpp
+        SharedSolverComponents/InterferenceForestGenerator.h
+        SharedSolverComponents/InterferenceForestGenerator.h)
 
 include(C:/Users/joelh/Documents/CppStuff/vcpkg/scripts/buildsystems/vcpkg.cmake)
 

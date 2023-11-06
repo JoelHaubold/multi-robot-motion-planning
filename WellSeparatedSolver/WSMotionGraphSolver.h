@@ -12,7 +12,7 @@
 class WSMotionGraphSolver
 {
 public:
-    static MotionSchedule solveMotionGraphs(std::unordered_map<std::string, Motion_Graph>& mgs);
+    static MotionSchedule solveMotionGraphs(std::unordered_map<std::string, Motion_Graph>& mgs, const DirectedInterferenceForest& dif);
     static void solveMotionGraphComponent(Motion_Graph& mg, MotionSchedule& ms); //const Directed-interference forest
 private:
     static void handleTargetLeaf(Motion_Graph& mg, MotionSchedule& ms, const MGVertex & targetLeaf);
@@ -22,6 +22,8 @@ private:
     static void doMove(MotionSchedule& ms, MGVertexProperty& from, MGVertexProperty& to, const MGEdgeProperty& over);
     static void doChainMove(Motion_Graph &mg, MotionSchedule &ms, std::vector<MGVertex> path);
     static void findAndRemoveLeaf(Motion_Graph &mg, MotionSchedule &ms);
+    static std::vector<std::string> getOrderFromDIForest(const DirectedInterferenceForest &dif);
+    static void getOrderFromDITree(std::vector<std::string> &resultVector, const DirectedInterferenceForest &dif, const DIFVertex &difVertex);
 };
 
 
