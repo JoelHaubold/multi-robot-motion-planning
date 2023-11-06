@@ -7,6 +7,8 @@
 #include <iostream>
 //#include "constants.h"
 #include "RandomGenerator.h"
+#include "constants.h"
+#include "testParameters.h"
 #include <functional>
 
 Polygon_2 MRMPInputGenerator::generateRandomPolygon(int workspaceComplexity, double workspaceSize) {
@@ -220,14 +222,15 @@ bool MRMPInputGenerator::conformsToChromaticDistance(const Point_2& conf, const 
 //    bool bichromaticlySeparated = std::all_of(sameTypeConfs.begin(), sameTypeConfs.end(), [&conf](const Point_2& stConf){
 //        return CGAL::abs(conf.x() - stConf.x()) < MONOCHROMATIC_SEPARATION && CGAL::abs(conf.y() - stConf.y()) < MONOCHROMATIC_SEPARATION;
 //    });
-
+    double monochromaticSeperation = USE_WS_SOLVER ? WS_SEPERATION : MONOCHROMATIC_SEPARATION;
+    double bichromaticSeperation = USE_WS_SOLVER ? WS_SEPERATION: BICHROMATIC_SEPARATION;
     for(const auto& stConf : sameTypeConfs) {
-        if(CGAL::max(CGAL::abs(conf.x() - stConf.x()), CGAL::abs(conf.y() - stConf.y())) < MONOCHROMATIC_SEPARATION) {
+        if(CGAL::max(CGAL::abs(conf.x() - stConf.x()), CGAL::abs(conf.y() - stConf.y())) < monochromaticSeperation) {
             return false;
         }
     }
     for(const auto& dtConf : differentTypeConfs) {
-        if(CGAL::max(CGAL::abs(conf.x() - dtConf.x()), CGAL::abs(conf.y() - dtConf.y())) < BICHROMATIC_SEPARATION) {
+        if(CGAL::max(CGAL::abs(conf.x() - dtConf.x()), CGAL::abs(conf.y() - dtConf.y())) < bichromaticSeperation) {
             return false;
         }
     }

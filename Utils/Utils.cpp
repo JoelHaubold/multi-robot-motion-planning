@@ -82,7 +82,7 @@ Point_2 Utils::getLowestIntersectionPoint(const Segment_2& verticalRay, const Po
     return lowestPoint;
 }
 
-double Utils::getClosestIntersectionPointToOrigin(const Point_2& seg1Origin, const Segment_2 & seg1, const Segment_2 & seg2) {
+double Utils::getSmallestDistanceToOrigin(const Point_2& seg1Origin, const Segment_2 & seg1, const Segment_2 & seg2) {
     const auto result = CGAL::intersection(seg1, seg2);
     if (const Segment_2* s = boost::get<Segment_2>(&*result)) {
         double distSource = CGAL::to_double(CGAL::squared_distance(seg1Origin,s->source()));
@@ -90,9 +90,22 @@ double Utils::getClosestIntersectionPointToOrigin(const Point_2& seg1Origin, con
         return distSource < distTarget ? distSource : distTarget;
     } else {
         const Point_2* p = boost::get<Point_2 >(&*result);
-        return CGAL::to_double(CGAL::squared_distance(seg1Origin,*s));
+        return CGAL::to_double(CGAL::squared_distance(seg1Origin,*p));
     }
 }
+
+Point_2 Utils::getClosestIntersectionPointToOrigin(const Point_2& seg1Origin, const Segment_2 & seg1, const Segment_2 & seg2) {
+    const auto result = CGAL::intersection(seg1, seg2);
+    if (const Segment_2* s = boost::get<Segment_2>(&*result)) {
+        double distSource = CGAL::to_double(CGAL::squared_distance(seg1Origin,s->source()));
+        double distTarget = CGAL::to_double(CGAL::squared_distance(seg1Origin,s->target()));
+        return distSource < distTarget ? s->source() : s->target();
+    } else {
+        const Point_2* p = boost::get<Point_2 >(&*result);
+        return *p;
+    }
+}
+
 double Utils::getRuntimeBound(const int workspaceComplexity, const int nmbrStartConfs)
 {
     return (workspaceComplexity+nmbrStartConfs)*std::log(workspaceComplexity+nmbrStartConfs) + std::pow(nmbrStartConfs,2) + nmbrStartConfs*workspaceComplexity;

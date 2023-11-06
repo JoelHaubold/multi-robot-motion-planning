@@ -16,7 +16,7 @@ add_executable(mrmp_implementation main.cpp RandomGenerator.cpp RandomGenerator.
         Utils/StringUtils.h
         WellSeparatedSolver/WSSolver.cpp
         WellSeparatedSolver/WSSolver.h
-        testParameter.h
+        testParameters.h
         Reports/MRMPTimer.cpp
         Reports/MRMPTimer.h
         Reports/ReportOutput.cpp

@@ -357,46 +357,132 @@ MGEdgeProperty WSMotionGraphGenerator::getListEdgeProperty(const Motion_Graph& m
 
 std::vector<Segment_2> WSMotionGraphGenerator::getAuraPath(const Point_2& from, const Point_2& to, const Polygon_2& freeSpaceBoundary) {
     const Segment_2 directAuraPath(from, to);
-    return {directAuraPath};
 
-    //Get lowest and highest index of edges
-
-//    int i = 0; TODO: Implement case where direct path is blocked
-//    int lowestIntersectIndex = freeSpaceBoundary.size();
-//    int highestIntersectIndex = 0;
+    //Get lowest and highest index of polygon edges intersecting the direct path
+    int lowestIntersectIndex = -1;
+    int highestIntersectIndex = -1;
+//    bool intersectionPathEdgeIndicesCrossZero = true;
 //    for(const Segment_2& freeSpaceEdge: freeSpaceBoundary.edges()) {
 //        if(CGAL::do_intersect(directAuraPath, freeSpaceEdge)) {
 //            if(i<lowestIntersectIndex) {
 //                lowestIntersectIndex = i;
 //            }
-//            highestIntersectIndex = i;
+//        } else if(i == 0 || i == static_cast<int>(freeSpaceBoundary.edges().size())){
+//            intersectionPathEdgeIndicesCrossZero = false; // The intersecting edges path does not cross the zero index
 //        }
 //        i++;
 //    }
-//
-//    if(highestIntersectIndex == 0) {
-//        return std::vector<Segment_2>{directAuraPath};
-//    }
-//
-//    const Segment_2& lowestIndexSegment = freeSpaceBoundary.edge(lowestIntersectIndex);
-//    const Segment_2& highestIndexSegment = freeSpaceBoundary.edge(highestIntersectIndex);
-//
-//    //Get intersection with direct aura path
-//    //Get lowest distance intersect point <-- travel to it
-//    //Travel to highest distance intersec point
-//    // Travel to rep point
-//
-//
-//
-//
-//    double distToLowestIndex = Utils::getClosestIntersectionPointToOrigin(vertex, directAuraPath, lowestIndexSegment); TODO: instead return isecPoint to later construct path
-//    double distToHighestIndex = Utils::getClosestIntersectionPointToOrigin(vertex, directAuraPath, highestIndexSegment);
-//
-//    if (distToLowestIndex< distToHighestIndex) {
-//        Segment_2 pathToLowestIndex(vertex, intersectPoint)
-//    }
 
+    const bool firstEdgeIntersects = CGAL::do_intersect(directAuraPath, freeSpaceBoundary.edge(0));
+    const bool lastEdgeIntersects = CGAL::do_intersect(directAuraPath, freeSpaceBoundary.edge(freeSpaceBoundary.edges().size()-1));
+    // The segment of the polygon edges which intersect the direct aura path, consist of edges at the beginning and at the end of the polygon edge array.
+    bool intersectionPathEdgeIndicesCrossZero = firstEdgeIntersects && lastEdgeIntersects;
 
+    if(!intersectionPathEdgeIndicesCrossZero) {
+        for(int i = 0; i < freeSpaceBoundary.edges().size(); i++) {
+            if(CGAL::do_intersect(directAuraPath, freeSpaceBoundary.edge(i))) {
+                if(i<lowestIntersectIndex) {
+                    lowestIntersectIndex = i;
+                }
+                highestIntersectIndex = i;
+            }
+        }
+    } else {
+        for(int i = 0; i < freeSpaceBoundary.edges().size(); i++) {
+            if(!CGAL::do_intersect(directAuraPath, freeSpaceBoundary.edge(i))) {
+                if(lowestIntersectIndex == -1) {
+                    lowestIntersectIndex = i-1;
+                }
+                highestIntersectIndex = i+1;
+            }
+        }
+    }
+
+    if(lowestIntersectIndex == -1) {
+        //Direct path is not blocked
+        return {directAuraPath};
+    }
+    std::cerr << "Direct aura path was intersected" << std::endl; //Todo: remove
+
+    //Get polygon edges corresponding to indices
+    const Segment_2& lowestIndexSegment = freeSpaceBoundary.edge(lowestIntersectIndex);
+    const Segment_2& highestIndexSegment = freeSpaceBoundary.edge(highestIntersectIndex);
+
+    //Get intersection with direct aura path
+    //Get lowest distance intersect point <-- travel to it
+    //Travel to highest distance intersec point
+    // Travel to rep point
+
+    //Get intersection Points with direct path
+    Point_2 intersectionLowestIndex = Utils::getClosestIntersectionPointToOrigin(from, directAuraPath, lowestIndexSegment); //TODO: instead return isecPoint to later construct path
+    Point_2 intersectionHighestIndex = Utils::getClosestIntersectionPointToOrigin(from, directAuraPath, highestIndexSegment);
+    //Get distance from stconf to intersction points
+    double distanceLowestIndex = CGAL::to_double(CGAL::squared_distance(from,intersectionLowestIndex));
+    double distanceHighestIndex = CGAL::to_double(CGAL::squared_distance(from,intersectionHighestIndex));
+
+    std::vector<Segment_2> path; //Construct path to, along and from intersecting polygon edges
+    if(!intersectionPathEdgeIndicesCrossZero) {
+        if (distanceLowestIndex < distanceHighestIndex) {
+            //Go to lowest index intersection and in order of polygon edges
+            path.emplace_back(from, intersectionLowestIndex);
+            path.emplace_back(intersectionLowestIndex, freeSpaceBoundary.edge(lowestIntersectIndex).target());
+            for(int j = lowestIntersectIndex + 1 ; j < highestIntersectIndex; j++) {
+                path.push_back(freeSpaceBoundary.edge(j));
+            }
+            path.emplace_back(freeSpaceBoundary.edge(highestIntersectIndex).source(), intersectionHighestIndex);
+            path.emplace_back(intersectionHighestIndex, to);
+        } else {
+            //Go to highest index intersection and in order of polygon edges
+            path.emplace_back(from, intersectionHighestIndex);
+            path.emplace_back(intersectionHighestIndex, freeSpaceBoundary.edge(highestIntersectIndex).source());
+            for(int j = highestIntersectIndex - 1; j > lowestIntersectIndex; j++) {
+                path.push_back(freeSpaceBoundary.edge(j).opposite());
+            }
+            path.emplace_back(freeSpaceBoundary.edge(lowestIntersectIndex).target(), intersectionLowestIndex);
+            path.emplace_back(intersectionLowestIndex, to);
+        }
+    } else {
+        if (distanceLowestIndex < distanceHighestIndex) {
+            //Go to lowest index intersection and in reverse order of polygon edges
+            path.emplace_back(from, intersectionLowestIndex);
+            path.emplace_back(intersectionLowestIndex, freeSpaceBoundary.edge(lowestIntersectIndex).source());
+            for(int j = lowestIntersectIndex -1 ; j >= 0; j--) {
+                path.push_back(freeSpaceBoundary.edge(j).opposite());
+            }
+            for(int j = freeSpaceBoundary.edges().size() - 1; j > highestIntersectIndex; j--) {
+                path.push_back(freeSpaceBoundary.edge(j).opposite());
+            }
+            path.emplace_back(freeSpaceBoundary.edge(highestIntersectIndex).target(), intersectionHighestIndex);
+            path.emplace_back(intersectionHighestIndex, to);
+        } else {
+            //Go to highest index intersection and in reverse order of polygon edges
+            path.emplace_back(from, intersectionHighestIndex);
+            path.emplace_back(intersectionHighestIndex, freeSpaceBoundary.edge(highestIntersectIndex).target());
+            for(int j = highestIntersectIndex + 1 ; j < freeSpaceBoundary.edges().size(); j++) {
+                path.push_back(freeSpaceBoundary.edge(j));
+            }
+            for(int j = 0; j < lowestIntersectIndex; j++) {
+                path.push_back(freeSpaceBoundary.edge(j));
+            }
+            path.emplace_back(freeSpaceBoundary.edge(highestIntersectIndex).source(), intersectionLowestIndex);
+            path.emplace_back(intersectionLowestIndex, to);
+        }
+    }
+
+    if (distanceLowestIndex > distanceHighestIndex) {
+        path.emplace_back(from, freeSpaceBoundary.edge(lowestIntersectIndex).target());
+        for(int j = lowestIntersectIndex + 1 ; j < highestIntersectIndex; j++) {
+            path.push_back(freeSpaceBoundary.edge(j));
+        }
+        path.emplace_back(freeSpaceBoundary.edge(highestIntersectIndex).source(), to);
+    } else {
+        path.emplace_back(from, freeSpaceBoundary.edge(highestIntersectIndex).source());
+        for(int j = lowestIntersectIndex + 1 ; j < highestIntersectIndex; j++) {
+            path.push_back(freeSpaceBoundary.edge(j));
+        }
+        path.emplace_back(freeSpaceBoundary.edge(lowestIntersectIndex).target(), to);
+    }
+    return path;
 }
 
 

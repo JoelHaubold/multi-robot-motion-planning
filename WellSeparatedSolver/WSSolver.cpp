@@ -14,6 +14,7 @@
 #include "../Utils/StringUtils.h"
 #include "../Utils/Utils.h"
 #include "../mytypedefs.h"
+#include "../testParameters.h"
 #include "WSFreeSpaceGenerator.h"
 #include "WSMotionGraphGenerator.h"
 #include "WSMotionGraphSolver.h"

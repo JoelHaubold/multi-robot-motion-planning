@@ -13,7 +13,7 @@
 //#include <QApplication>
 #include "RandomGenerator.h"
 #include "WellSeparatedSolver/WSSolver.h"
-#include "testParameter.h"
+#include "testParameters.h"
 
 
 //#ifdef CGAL_USE_GMP

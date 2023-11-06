@@ -3,7 +3,7 @@
 //
 
 #include "ReportOutput.h"
-#include "../testParameter.h"
+#include "../testParameters.h"
 void ReportOutput::printAndSaveReports(const std::vector<TestRunReport>& reports)
 {
     for(int i = -1; i < static_cast<int>(WORKSPACE_COMPLEXITY.size()); i++) {
