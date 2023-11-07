@@ -7,7 +7,6 @@
 
 #include "mytypedefs.h"
 
-//TODO: Rename to ~RequirementsGenerator
 class MRMPInputGenerator
 {
 public:

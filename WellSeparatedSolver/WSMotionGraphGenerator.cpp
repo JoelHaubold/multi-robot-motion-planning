@@ -81,7 +81,7 @@ void WSMotionGraphGenerator::getMGForFStarComponent(Motion_Graph& motionGraph, c
         bool isInside = outerBoundary.bounded_side(vertexLocation) == CGAL::ON_BOUNDED_SIDE;
         if(!isInside) {
             RepPoint repPoint = getRepPoint(outerBoundary, vertexLocation, relevantVertex);
-            polyVertex2RepPoint[repPoint.polyVertexNmbr] = repPoint;
+            polyVertex2RepPoint[repPoint.polySegmentIndex] = repPoint;
         } else {
             //Shoot ray upwards
             RepPoint rayIntersection = getRayIntersectionWithFreeSpace(vertexLocation, outerBoundary, boundaryYMax, relevantVertex);
@@ -89,15 +89,15 @@ void WSMotionGraphGenerator::getMGForFStarComponent(Motion_Graph& motionGraph, c
             std::copy_if(relevantVertices.begin(), relevantVertices.end(), std::back_inserter(interceptingAuras),
                          [& vertexLocation, &rayIntersection, &motionGraph](const MGVertex & intersecCandidate){
                              Point_2 candidateInterceptorLocation = motionGraph[intersecCandidate].location;
-                             //std::cout << "Empty!" << motionGraph[rayIntersection.forVertex].id << ","<< motionGraph[intersecCandidate].id <<std::endl;
-                             //std::cout << "Empty!" <<candidateInterceptorLocation.x() <<","<<candidateInterceptorLocation.y()<<"," <<vertexLocation.x()<<","<<vertexLocation.y()<<","<<rayIntersection.location.y() << std::endl;
-                             return intersectsAuraPredicate(candidateInterceptorLocation, vertexLocation, rayIntersection.location.y());
+                             //std::cout << "Empty!" << motionGraph[rayIntersection.associatedMGVertex].id << ","<< motionGraph[intersecCandidate].id <<std::endl;
+                             //std::cout << "Empty!" <<candidateInterceptorLocation.x() <<","<<candidateInterceptorLocation.y()<<"," <<vertexLocation.x()<<","<<vertexLocation.y()<<","<<rayIntersection.locationOnPolyBoundary.y() << std::endl;
+                             return intersectsAuraPredicate(candidateInterceptorLocation, vertexLocation, rayIntersection.locationOnPolyBoundary.y());
                          });
             if(interceptingAuras.empty()) {
-                //std::cout << "Empty!" << rayIntersection.location.x() << "," << rayIntersection.location.y() << std::endl;
-                //std::cout << "Empty!" << motionGraph[rayIntersection.forVertex].id << std::endl;
+                //std::cout << "Empty!" << rayIntersection.locationOnPolyBoundary.x() << "," << rayIntersection.locationOnPolyBoundary.y() << std::endl;
+                //std::cout << "Empty!" << motionGraph[rayIntersection.associatedMGVertex].id << std::endl;
                 //repPoints.emplace_back(rayIntersection, relevantVertex);
-                polyVertex2RayRepPoints[rayIntersection.polyVertexNmbr].push_back(rayIntersection);
+                polyVertex2RayRepPoints[rayIntersection.polySegmentIndex].push_back(rayIntersection);
             } else if(interceptingAuras.size() == 1) {
                 //std::cout << "NonEmpty1" << std::endl;
                 MGEdgeProperty edgeProperty = getRayEdgeProperty(vertexLocation, vertexProps.id, motionGraph[interceptingAuras[0]].location, fStarComponent.parent.freeSpaceComponent);
@@ -144,17 +144,17 @@ void WSMotionGraphGenerator::generateListEdges(Motion_Graph& motionGraph, const 
                     std::vector<RepPoint> rayRepPoints = it2->second;
                     if(lastCorner.x() < corner.x()){
                         std::sort(rayRepPoints.begin(), rayRepPoints.end(), [](const RepPoint& p1, const RepPoint& p2) {
-                            return p1.location.x() < p2.location.x();
+                            return p1.locationOnPolyBoundary.x() < p2.locationOnPolyBoundary.x();
                         });
                     } else {
                         std::sort(rayRepPoints.begin(), rayRepPoints.end(), [](const RepPoint& p1, const RepPoint& p2) {
-                            return p1.location.x() > p2.location.x();
+                            return p1.locationOnPolyBoundary.x() > p2.locationOnPolyBoundary.x();
                         });
                     }
 
                     //std::cout << corner.x() << " ; "<<lastCorner.x() << std::endl;
                     for(const RepPoint& rayRepPoint : rayRepPoints) {
-                        //std::cout << motionGraph[rayRepPoint.forVertex].id << " ; "<<rayRepPoint.location.x()<<" ; "<< rayRepPoint.location.y() << std::endl;
+                        //std::cout << motionGraph[rayRepPoint.associatedMGVertex].id << " ; "<<rayRepPoint.locationOnPolyBoundary.x()<<" ; "<< rayRepPoint.locationOnPolyBoundary.y() << std::endl;
                         sortedRepPoints.push_back(rayRepPoint);
                     }
                 }
@@ -178,11 +178,11 @@ void WSMotionGraphGenerator::generateListEdges(Motion_Graph& motionGraph, const 
             std::vector<RepPoint> rayRepPoints = it2->second;
             if(lastCorner.x() < vertex.x()){
                 std::sort(rayRepPoints.begin(), rayRepPoints.end(), [](const RepPoint& p1, const RepPoint& p2) {
-                    return p1.location.x() < p2.location.x();
+                    return p1.locationOnPolyBoundary.x() < p2.locationOnPolyBoundary.x();
                 });
             } else {
                 std::sort(rayRepPoints.begin(), rayRepPoints.end(), [](const RepPoint& p1, const RepPoint& p2) {
-                    return p1.location.x() > p2.location.x();
+                    return p1.locationOnPolyBoundary.x() > p2.locationOnPolyBoundary.x();
                 });
             }
             for(const RepPoint& rayRepPoint : rayRepPoints) {
@@ -196,22 +196,22 @@ void WSMotionGraphGenerator::generateListEdges(Motion_Graph& motionGraph, const 
     }
 
     if(sortedRepPoints.size() == 2) {
-        std::string vertex1Id = motionGraph[sortedRepPoints[0].forVertex].id;
+        std::string vertex1Id = motionGraph[sortedRepPoints[0].associatedMGVertex].id;
         MGEdgeProperty edgeProperty = getListEdgeProperty(motionGraph, sortedRepPoints[0], sortedRepPoints[1], fStarComp.parent.freeSpaceComponent, fStarComp.fStarPolygon.outer_boundary());
-        boost::add_edge(sortedRepPoints[0].forVertex, sortedRepPoints[1].forVertex, edgeProperty,motionGraph);
+        boost::add_edge(sortedRepPoints[0].associatedMGVertex, sortedRepPoints[1].associatedMGVertex, edgeProperty,motionGraph);
         return;
     }
 
     for(int i = 1; i < sortedRepPoints.size(); i++) {
-        std::string vertex1Id = motionGraph[sortedRepPoints[i-1].forVertex].id;
+        std::string vertex1Id = motionGraph[sortedRepPoints[i-1].associatedMGVertex].id;
         MGEdgeProperty edgeProperty = getListEdgeProperty(motionGraph, sortedRepPoints[i-1], sortedRepPoints[i], fStarComp.parent.freeSpaceComponent, fStarComp.fStarPolygon.outer_boundary());
-        //std::cout << "Adding edge:" << vertex1Id <<"-"<< motionGraph[sortedRepPoints[i].forVertex].id << std::endl;
-        boost::add_edge(sortedRepPoints[i-1].forVertex, sortedRepPoints[i].forVertex, edgeProperty, motionGraph);
+        //std::cout << "Adding edge:" << vertex1Id <<"-"<< motionGraph[sortedRepPoints[i].associatedMGVertex].id << std::endl;
+        boost::add_edge(sortedRepPoints[i-1].associatedMGVertex, sortedRepPoints[i].associatedMGVertex, edgeProperty, motionGraph);
     }
-    std::string vertex1Id = motionGraph[sortedRepPoints[0].forVertex].id;
+    std::string vertex1Id = motionGraph[sortedRepPoints[0].associatedMGVertex].id;
     //std::cout << "Problem? " << vertex1Id << std::endl;
     //MGEdgeProperty edgeProperty = getListEdgeProperty(motionGraph, sortedRepPoints[sortedRepPoints.size()-1], sortedRepPoints[0], fStarComp.parent.freeSpaceComponent, fStarComp.fStarPolygon.outer_boundary());
-    //boost::add_edge(sortedRepPoints[sortedRepPoints.size()-1].forVertex, sortedRepPoints[0].forVertex, edgeProperty,motionGraph);
+    //boost::add_edge(sortedRepPoints[sortedRepPoints.size()-1].associatedMGVertex, sortedRepPoints[0].associatedMGVertex, edgeProperty,motionGraph);
 
     //SFMLDrawUtils::drawPaths({fStarComp}, {edgeProperty}, "problemEdge");
     //std::vector<Segment_2> efgr = motionGraph.
@@ -289,7 +289,7 @@ RepPoint WSMotionGraphGenerator::getRayIntersectionWithFreeSpace(const Point_2& 
 
 /*
  * If directly added:
- * Need shooterLocation; RayIntersectPoint and HitVertex location [Path from hit vertex to ]
+ * Need shooterLocation; RayIntersectPoint and HitVertex locationOnPolyBoundary [Path from hit vertex to ]
  * If both Bi:
  * Need both locations and their representative points + index of corner/ side containing rep points[Find path to rep points and go from there]
  * If one Hi:
@@ -304,33 +304,33 @@ RepPoint WSMotionGraphGenerator::getRayIntersectionWithFreeSpace(const Point_2& 
 MGEdgeProperty WSMotionGraphGenerator::getListEdgeProperty(const Motion_Graph& mg, const RepPoint& vertex1Rep, const RepPoint& vertex2Rep, const Polygon_2& freeSpaceBoundary, const Polygon_2& fStarBoundary) {
 
     std::vector<Segment_2> path;
-    const Point_2 vertex1 = mg[vertex1Rep.forVertex].location;
-    const Point_2 vertex2 = mg[vertex2Rep.forVertex].location;
-    const std::string vertex1Id = mg[vertex1Rep.forVertex].id;
+    const Point_2 vertex1 = mg[vertex1Rep.associatedMGVertex].location;
+    const Point_2 vertex2 = mg[vertex2Rep.associatedMGVertex].location;
+    const std::string vertex1Id = mg[vertex1Rep.associatedMGVertex].id;
 
-    if((vertex1Rep.location.y()-vertex1.y()) > ROBOT_SIZE) {
-        path.emplace_back(vertex1, vertex1Rep.location);
+    if((vertex1Rep.locationOnPolyBoundary.y()-vertex1.y()) > ROBOT_SIZE) {
+        path.emplace_back(vertex1, vertex1Rep.locationOnPolyBoundary);
     } else {
-        std::vector<Segment_2> auraPath = getAuraPath(vertex1, vertex1Rep.location, freeSpaceBoundary);
+        std::vector<Segment_2> auraPath = getAuraPath(vertex1, vertex1Rep.locationOnPolyBoundary, freeSpaceBoundary);
         std::for_each(auraPath.begin(), auraPath.end(), [&path](const Segment_2& seg) {path.push_back(seg);});
     }
 
-    if(vertex1Rep.polyVertexNmbr == vertex2Rep.polyVertexNmbr) {
+    if(vertex1Rep.polySegmentIndex == vertex2Rep.polySegmentIndex) {
         //Both representative points are on the same polygon edge
-        path.emplace_back(vertex1Rep.location, vertex2Rep.location);
+        path.emplace_back(vertex1Rep.locationOnPolyBoundary, vertex2Rep.locationOnPolyBoundary);
     } else {
         int currentVertex;
-        if(vertex1Rep.polyVertexNmbr == fStarBoundary.size()-1) {
+        if(vertex1Rep.polySegmentIndex == fStarBoundary.size()-1) {
             //Reached end of polygon
-            path.emplace_back(vertex1Rep.location, fStarBoundary.vertex(0));
+            path.emplace_back(vertex1Rep.locationOnPolyBoundary, fStarBoundary.vertex(0));
             currentVertex = 0;
         } else {
             //Go to next vertex
-            path.emplace_back(vertex1Rep.location, fStarBoundary.vertex(vertex1Rep.polyVertexNmbr+1));
-            currentVertex = vertex1Rep.polyVertexNmbr+1;
+            path.emplace_back(vertex1Rep.locationOnPolyBoundary, fStarBoundary.vertex(vertex1Rep.polySegmentIndex +1));
+            currentVertex = vertex1Rep.polySegmentIndex +1;
         }
         //Loop until vertex/ edge is found containing the vertex2 representative
-        while(currentVertex!=vertex2Rep.polyVertexNmbr) {
+        while(currentVertex!=vertex2Rep.polySegmentIndex) {
             if(currentVertex == fStarBoundary.size()-1) {
                 //Reached end of polygon
                 path.emplace_back(fStarBoundary.vertex(currentVertex),fStarBoundary.vertex(0));
@@ -340,15 +340,15 @@ MGEdgeProperty WSMotionGraphGenerator::getListEdgeProperty(const Motion_Graph& m
                 currentVertex++;
             }
         }
-        if(fStarBoundary.vertex(currentVertex)!= vertex2Rep.location) {
-            path.emplace_back(fStarBoundary.vertex(currentVertex), vertex2Rep.location);
+        if(fStarBoundary.vertex(currentVertex)!= vertex2Rep.locationOnPolyBoundary) {
+            path.emplace_back(fStarBoundary.vertex(currentVertex), vertex2Rep.locationOnPolyBoundary);
         }
     }
 
-    if((vertex2Rep.location.y()-vertex2.y()) > ROBOT_SIZE) {
-        path.emplace_back( vertex2Rep.location, vertex2);
+    if((vertex2Rep.locationOnPolyBoundary.y()-vertex2.y()) > ROBOT_SIZE) {
+        path.emplace_back( vertex2Rep.locationOnPolyBoundary, vertex2);
     } else {
-        std::vector<Segment_2> auraPath = getAuraPath(vertex2Rep.location, vertex2, freeSpaceBoundary);
+        std::vector<Segment_2> auraPath = getAuraPath(vertex2Rep.locationOnPolyBoundary, vertex2, freeSpaceBoundary);
         std::for_each(auraPath.begin(), auraPath.end(), [&path](const Segment_2& seg) {path.push_back(seg);});
     }
 
@@ -414,7 +414,7 @@ std::vector<Segment_2> WSMotionGraphGenerator::getAuraPath(const Point_2& from, 
     // Travel to rep point
 
     //Get intersection Points with direct path
-    Point_2 intersectionLowestIndex = Utils::getClosestIntersectionPointToOrigin(from, directAuraPath, lowestIndexSegment); //TODO: instead return isecPoint to later construct path
+    Point_2 intersectionLowestIndex = Utils::getClosestIntersectionPointToOrigin(from, directAuraPath, lowestIndexSegment);
     Point_2 intersectionHighestIndex = Utils::getClosestIntersectionPointToOrigin(from, directAuraPath, highestIndexSegment);
     //Get distance from stconf to intersction points
     double distanceLowestIndex = CGAL::to_double(CGAL::squared_distance(from,intersectionLowestIndex));

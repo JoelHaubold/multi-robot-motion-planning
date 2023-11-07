@@ -125,10 +125,10 @@ void SFMLDrawUtils::drawFStar(const std::vector<FStarComponent> &toDraw, const s
 //            std::cout << "Poly: " << xV <<"," << yV << std::endl;
 //        }
 //        for(const STConf& stconf: fComponent.adjacentSConfs) {
-//            std::cout << "S: " << stconf.location.x() <<"," << stconf.location.y() << std::endl;
+//            std::cout << "S: " << stconf.locationOnPolyBoundary.x() <<"," << stconf.locationOnPolyBoundary.y() << std::endl;
 //        }
 //        for(const STConf& stconf: fComponent.adjacentTConfs) {
-//            std::cout << "T: " << stconf.location.x() <<"," << stconf.location.y() << std::endl;
+//            std::cout << "T: " << stconf.locationOnPolyBoundary.x() <<"," << stconf.locationOnPolyBoundary.y() << std::endl;
 //        }
 
         window.draw(polygon);
@@ -137,7 +137,7 @@ void SFMLDrawUtils::drawFStar(const std::vector<FStarComponent> &toDraw, const s
             window.draw(getCube(sConf, true, width, height));
             std::string label = sConf.id + "\n" + fComponent.parent.freeSpaceId;
             window.draw(getText(sConf.location, label, width, height));
-            //window.draw(getText(sConf.location, sConf.id, width, height));
+            //window.draw(getText(sConf.locationOnPolyBoundary, sConf.id, width, height));
         }
 
         for(const auto& tConf: fComponent.adjacentTConfs) {
@@ -358,10 +358,10 @@ sf::Text SFMLDrawUtils::getText(const Point_2& location, const std::string& text
 }
 
 sf::Vector2f SFMLDrawUtils::getUpscaledVector(const Point_2& location) {
-//    std::cout << "Translating:" << location.x()*UPSCALE_FACTOR << ","<< location.y()*UPSCALE_FACTOR<< std::endl;
+//    std::cout << "Translating:" << locationOnPolyBoundary.x()*UPSCALE_FACTOR << ","<< locationOnPolyBoundary.y()*UPSCALE_FACTOR<< std::endl;
     sf::Vector2f sfVector(CGAL::to_double(location.x()*UPSCALE_FACTOR), -CGAL::to_double(location.y()*UPSCALE_FACTOR)); //Invert y-axis (SFML y-axis is oriented downwards)
 //    std::cout << "To:" << sfVector.x << "," << sfVector.y<< std::endl;
-//    sf::Vector2f sfVector2(CGAL::to_double(location.x())*UPSCALE_FACTOR, CGAL::to_double(location.y())*UPSCALE_FACTOR);
+//    sf::Vector2f sfVector2(CGAL::to_double(locationOnPolyBoundary.x())*UPSCALE_FACTOR, CGAL::to_double(locationOnPolyBoundary.y())*UPSCALE_FACTOR);
 //    std::cout << "ToAlt:" << sfVector2.x << "," << sfVector2.y<< std::endl;
     return sfVector;
 }

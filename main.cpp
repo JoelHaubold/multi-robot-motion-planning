@@ -26,9 +26,6 @@
 //typedef double RT;
 //#endif
 
-#include <fstream>
-#include <list>
-
 //const double RADIUS = 100;
 //const int WORKSPACE_COMPLEXITY = 100;
 //
@@ -39,14 +36,14 @@
 //const int WORKSPACE_COMPLEXITY = 50;
 
 /*
- * TODO: Reimplement intelligent aura traversal
  * TODO: Test special cases as in disk shaped master thesis
  * TODO: Output validator
  * TODO: Generate new workspace polygon if point limit is reached
+ * TODO: Individual timers per major calculation step
  */
 
 //try {
-//    // Code that may throw an exception TODO: Exception throwing on sanity check and catching + logging with random seed/ workspace+st configuration
+//    // Code that may throw an exception
 //    throw std::runtime_error("This is an example exception.");
 //} catch (const std::exception& e) {
 //    // Catch the exception and handle it
@@ -56,7 +53,6 @@
 
 int main(int argc, char *argv[])
 {
-//    QApplication app(argc, argv);
 
 //    std::vector<int> randomArray{1,2,3,4};
 //    if(-1 > randomArray.size()) {

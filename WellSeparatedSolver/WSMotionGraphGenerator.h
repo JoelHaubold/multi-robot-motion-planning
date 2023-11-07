@@ -8,9 +8,9 @@
 #include "../mytypedefs.h"
 
 struct RepPoint{
-    Point_2 location;
-    int polyVertexNmbr;
-    MGVertex forVertex;
+    Point_2 locationOnPolyBoundary;
+    int polySegmentIndex;
+    MGVertex associatedMGVertex;
 };
 
 class WSMotionGraphGenerator

@@ -9,14 +9,6 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <exception>
 
-/*
- * TODO:
- * Iterate through dif vertices
- * If no incoming edges -> resolve
- * If incoming edges put on stack and try connected vertex
- * Then resolve stack
- * Continue with iteration but ignore already resolved vertices [set of fSpaceId : resolved]
- */
 MotionSchedule WSMotionGraphSolver::solveMotionGraphs(std::unordered_map<std::string, Motion_Graph> &mgs, const DirectedInterferenceForest& dif)
 {
     std::vector<std::string> mgOrder = getOrderFromDIForest(dif);
