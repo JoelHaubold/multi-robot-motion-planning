@@ -23,6 +23,8 @@ const std::string START_CONF_PREFIX = "S";
 const std::string TARGET_CONF_PREFIX = "T";
 const std::string ROBOT_PREFIX = "R";
 
+const std::string RESIDUAL_PREFIX = "F̄";
+
 
 
 

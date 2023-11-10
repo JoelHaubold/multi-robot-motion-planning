@@ -35,8 +35,9 @@ void WSSolver::runMRMPProblem(int workspaceComplexity, double maxWorkspaceSize, 
 
 
     STConfigurations stConfigurations = MRMPInputGenerator::getStartAndTargetConfigurations(freeSpaceComponents, numberStartPositions);
-    MRMPTimer::setStartOfGraphWork();
+    MRMPTimer::setStartOfAssociatingSTConfs();
     WSFreeSpaceGenerator::associateSTConfs(freeSpaceComponents, stConfigurations.startConfigurations, stConfigurations.targetConfigurations);
+    MRMPTimer::setStartOfFStarGen();
     std::vector<FStarComponent> fStarSet = WSFreeSpaceGenerator::getFStar2(freeSpaceComponents);
     //    Polygon_set_2 set;
     //    for(const auto& fs : fStarSet) {
@@ -58,7 +59,7 @@ void WSSolver::runMRMPProblem(int workspaceComplexity, double maxWorkspaceSize, 
     //
     //    const STConfId2MGVertex id2Vertex = WSMotionGraphGenerator::insertVertices(motionGraph, stConfigurations);
     //    WSMotionGraphGenerator::insertEdges(motionGraph, fStarSet, id2Vertex);
-
+    MRMPTimer::setStartOfMGCreation();
     std::unordered_map<std::string, Motion_Graph> mgs = WSMotionGraphGenerator::getMotionGraphs(freeSpaceComponents, fStarSet);
 
 
@@ -84,12 +85,14 @@ void WSSolver::runMRMPProblem(int workspaceComplexity, double maxWorkspaceSize, 
 
         SFMLDrawUtils::drawPaths(fStarSet, edges, "Paths");
     }
+    MRMPTimer::setStartOfIntForest();
     DirectedInterferenceForest diForest = InterferenceForestGenerator::getInterferenceForest(freeSpaceComponents);
     if(GENERATE_DEBUG_DRAWINGS) {
         GraphvizDrawUtils::drawDIForest(diForest, "DIForest.dot");
     }
+    MRMPTimer::setStartOfSolvingMG();
     MotionSchedule ms = WSMotionGraphSolver::solveMotionGraphs(mgs, diForest);
-    MRMPTimer::setEndOfGraphWork();
+    MRMPTimer::setEnd();
     if (GENERATE_DEBUG_DRAWINGS)
     {
         StringUtils::printMotionSteps(ms);
@@ -115,17 +118,16 @@ void WSSolver::doMRMPRuntimeTest()
             long long sumFSTime = 0;
             long long sumGWTime = 0;
             const double runtimeBound = Utils::getRuntimeBound(workspaceComplexity, nmbrStartConfs);
+            TimeReport summationReport = {0,0,0,0,0,0};
             for (int i = 0; i < REPETITIONS; i++)
             {
                 RandomGenerator::setSeed(seeds[i]);
                 runMRMPProblem(workspaceComplexity, MAX_WORKSPACE_SIZE, nmbrStartConfs);
                 TimeReport tr = MRMPTimer::resetAndGetReport();
-                sumFSTime += tr.freeSpaceTime;
-                sumGWTime += tr.graphWorkTime;
+                summationReport = summationReport + tr;
             }
-            long long avgFSTime = sumFSTime / REPETITIONS;
-            long long avgGWTime = sumGWTime / REPETITIONS;
-            reports.emplace_back(TimeReport{avgFSTime, avgGWTime}, runtimeBound);
+
+            reports.emplace_back(summationReport/ REPETITIONS, runtimeBound);
             std::cout << "WC: " << workspaceComplexity << "; NSP: " << nmbrStartConfs << "; Time in microseconds: " << reports[reports.size() - 1].timeReport.totalTime << std::endl;
         }
     }

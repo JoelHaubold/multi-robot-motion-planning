@@ -15,10 +15,17 @@ class MRMPTimer
 public:
     static void setStartOfFreeSpaceGen();
     static void setEndOfFreeSpaceGen();
-    static void setStartOfGraphWork();
-    static void setEndOfGraphWork();
+    static void setStartOfAssociatingSTConfs();
+    static void setStartOfFStarGen();
+    static void setStartOfMGCreation();
+    static void setStartOfIntForest();
+    static void setStartOfSolvingMG();
+    static void setEnd();
 
     static TimeReport resetAndGetReport();
+
+private:
+    static long long getTimeInMicros(std::chrono::high_resolution_clock::time_point tp1, std::chrono::high_resolution_clock::time_point tp2);
 };
 
 

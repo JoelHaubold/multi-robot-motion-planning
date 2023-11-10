@@ -8,21 +8,21 @@
 #include <CGAL/Polygon_vertical_decomposition_2.h>
 //#include <CGAL/draw_polygon_set_2.h>
 //#include <CGAL/draw_polygon_with_holes_2.h>
+#include "../SharedSolverComponents/FreeSpaceHelper.h"
 #include <CGAL/minkowski_sum_2.h>
-#include "../constants.h"
 
-Polygon_wh_2 WSFreeSpaceGenerator::getObstaclePolygon(const Polygon_2& boundingBox, const Polygon_2& workspacePolygon) {
-  Polygon_wh_2 uncheckedObstaclePolygon;
-  Pwh_list_2 obstaclePolygons;
-  CGAL::difference(boundingBox, workspacePolygon,
-                   std::back_inserter(obstaclePolygons));
-  uncheckedObstaclePolygon = *obstaclePolygons.begin();
-  if(uncheckedObstaclePolygon.number_of_holes() != 1) {
-    throw std::runtime_error("Obstacle polygon should have exactly one hole" );
-  }
-
-  return uncheckedObstaclePolygon;
-}
+//Polygon_wh_2 WSFreeSpaceGenerator::getObstaclePolygon(const Polygon_2& boundingBox, const Polygon_2& workspacePolygon) {
+//  Polygon_wh_2 uncheckedObstaclePolygon;
+//  Pwh_list_2 obstaclePolygons;
+//  CGAL::difference(boundingBox, workspacePolygon,
+//                   std::back_inserter(obstaclePolygons));
+//  uncheckedObstaclePolygon = *obstaclePolygons.begin();
+//  if(uncheckedObstaclePolygon.number_of_holes() != 1) {
+//    throw std::runtime_error("Obstacle polygon should have exactly one hole" );
+//  }
+//
+//  return uncheckedObstaclePolygon;
+//}
 
 //Pwh_list_2 WSFreeSpaceGenerator::getFreeSpacePolygon(const Polygon_2& boundingBox, const Polygon_wh_2& free_space_complement_polygon) {
 //  Pwh_list_2 freeSpacePolygons;
@@ -32,70 +32,22 @@ Polygon_wh_2 WSFreeSpaceGenerator::getObstaclePolygon(const Polygon_2& boundingB
 //
 //  return freeSpacePolygons;
 //}
+
 std::vector<FreeSpaceComponent> WSFreeSpaceGenerator::getFreeSpaceComponents(const Polygon_2& workspacePolygon)
 {
-    // Create a bounding box that covers the entire plane
-    Polygon_2 boundingBox = Utils::generateBoundingBox(workspacePolygon.bbox());
-    //CGAL::draw(boundingBox);
-
-    //Calculate obstacle space
-    Polygon_wh_2 obstaclePolygon = getObstaclePolygon(boundingBox, workspacePolygon);
-    //CGAL::draw(obstaclePolygon);
-
-    // Create robot workspacePolygon
-    Polygon_2 robot = Utils::generateRobot();
-
-    //Free space complement workspacePolygon
-    CGAL::Polygon_vertical_decomposition_2<K, Container>  decomp;
-    Polygon_wh_2 free_space_complement_polygon = CGAL::minkowski_sum_2(obstaclePolygon, robot, decomp);
-    //CGAL::draw(free_space_complement_polygon);
-
-    //  Polygon_wh_2 freeSpacePolygon;
-    //Pwh_list_2 freeSpacePolygons = getFreeSpacePolygon(boundingBox, free_space_complement_polygon);
-
-    // Create a vector to hold the holes as Polygon_2 objects
-    std::vector<FreeSpaceComponent> freeSpaces;
-
-    int nmbr_free_spaces = 0;
-    //std::cout << "Iterating:" << std::endl;
-    // Iterate through the holes and convert them to Polygon_2
-    for (auto hole_it = free_space_complement_polygon.holes_begin(); hole_it != free_space_complement_polygon.holes_end(); ++hole_it) {
-        //std::cout << "Iter" << std::endl;
-        Polygon_2 hole = *hole_it;
-        hole.reverse_orientation(); // Counter clockwise orientation for later set processing
-        nmbr_free_spaces++;
-        freeSpaces.emplace_back(hole, FREE_SPACE_PREFIX+std::to_string(nmbr_free_spaces));
-        //freeSpaces[FREE_SPACE_PREFIX+std::to_string(nmbr_free_spaces)] = hole;
-        //CGAL::draw(hole);
-    }
-    //std::cout << "Stoping iterating:" << std::endl;
-    return freeSpaces;
+    return FreeSpaceHelper::getFreeSpaceComponents(workspacePolygon);
 }
 
 
 //Ray Casting Algorithm has complexity O(n) per point
 void WSFreeSpaceGenerator::associateSTConfs(std::vector<FreeSpaceComponent>& freeSpaceComponents, const std::vector<STConf>& startConfs, const std::vector<STConf>& targetConfs)
 {
-    for(const auto& sConf : startConfs) {
-        for(auto& freeSpaceComponent : freeSpaceComponents) {
-            if( freeSpaceComponent.freeSpaceComponent.bounded_side(sConf.location) == CGAL::ON_BOUNDED_SIDE) {
-                freeSpaceComponent.startConfigurations.push_back(sConf);
-            }
-        }
-    }
-    for(const auto& tConf : targetConfs) {
-        for(auto& freeSpaceComponent : freeSpaceComponents) {
-            if( freeSpaceComponent.freeSpaceComponent.bounded_side(tConf.location) == CGAL::ON_BOUNDED_SIDE) {
-                freeSpaceComponent.targetConfigurations.push_back(tConf);
-            }
-        }
-    }
-
+    FreeSpaceHelper::associateSTConfs(freeSpaceComponents, startConfs, targetConfs);
 }
 
 
 //std::vector<FStarComponent> WSFreeSpaceGenerator::getFStar(const std::vector<FreeSpaceComponent>& freeSpaces)//, Polygon_set_2 freeSpaceSet, const std::vector<Point_2>& startConfs, const std::vector<Point_2>& targetConfs)
-//{ TODO: Calculating by one big difference
+//{
 //
 //    Polygon_set_2 auraSet;
 ////    Polygon_set_2 startSet;
@@ -137,6 +89,12 @@ void WSFreeSpaceGenerator::associateSTConfs(std::vector<FreeSpaceComponent>& fre
 //    return fStarComponents;
 //}
 
+/**
+ *
+ * Only iterate over all st configurations once. Also check if included before joining and create aura only once.
+ * @param freeSpaces
+ * @return
+ */
 std::vector<FStarComponent> WSFreeSpaceGenerator::getFStar2(const std::vector<FreeSpaceComponent>& freeSpaces)//, Polygon_set_2 freeSpaceSet, const std::vector<Point_2>& startConfs, const std::vector<Point_2>& targetConfs)
 {
 //    Polygon_set_2 auraSet;
@@ -158,8 +116,13 @@ std::vector<FStarComponent> WSFreeSpaceGenerator::getFStar2(const std::vector<Fr
 
     int fStarNumber = 0;
     std::vector<FStarComponent> fStarComponents;
+//    long long difTime = 0;
+//    long long joinTime = 0;
+//    long long effTime = 0;
+//    long long creationTime = 0;
     for(const auto& freeSpace : freeSpaces)
     {
+        //std::chrono::high_resolution_clock::time_point difStart = std::chrono::high_resolution_clock::now();
         Polygon_set_2 auraSet;
         for(const auto& startLocation : freeSpace.startConfigurations) {
             Polygon_2 auraPolygon = Utils::generateRobotAura(startLocation.location);
@@ -174,23 +137,77 @@ std::vector<FStarComponent> WSFreeSpaceGenerator::getFStar2(const std::vector<Fr
         Polygon_set_2 freeSpaceSet;
         freeSpaceSet.insert(freeSpace.freeSpaceComponent);
         freeSpaceSet.difference(auraSet);
+//        std::chrono::high_resolution_clock::time_point difEnd = std::chrono::high_resolution_clock::now();
+//        difTime += std::chrono::duration_cast<std::chrono::microseconds >(difEnd - difStart).count();
 
         std::vector<Polygon_wh_2> fStarPolygons;
         freeSpaceSet.polygons_with_holes(std::back_inserter(fStarPolygons));
-        for (const auto& fStarPoly : fStarPolygons) {
-            //std::cout << "Getting fstar:" << std::endl;
-            std::vector<STConf> adjSConfs = getAdjacentConfigurations(fStarPoly, freeSpace.startConfigurations);
-            std::vector<STConf> adjTConfs = getAdjacentConfigurations(fStarPoly, freeSpace.targetConfigurations);
-            if(adjSConfs.size() + adjTConfs.size() <= 1) {
+
+//        std::unordered_map<int, std::vector<STConf>> adjSConfs_;
+//        std::unordered_map<int, std::vector<STConf>> adjTConfs_;
+
+//        std::chrono::high_resolution_clock::time_point joinEnd = std::chrono::high_resolution_clock::now();
+//        joinTime += std::chrono::duration_cast<std::chrono::microseconds >(joinEnd - difEnd).count();
+        std::unordered_map<int, std::vector<STConf>> adjSConfs;
+        std::unordered_map<int, std::vector<STConf>> adjTConfs;
+//        associateByJoining(fStarPolygons, freeSpace.startConfigurations, adjSConfs);
+//        associateByJoining(fStarPolygons, freeSpace.targetConfigurations, adjTConfs);
+        associateEfficiently(fStarPolygons, freeSpace.startConfigurations, adjSConfs);
+        associateEfficiently(fStarPolygons, freeSpace.targetConfigurations, adjTConfs);
+
+//        for(const auto& sConf : freeSpace.startConfigurations) {
+//            const Polygon_2 aura = Utils::generateRobotAura(sConf.location);
+//            for (int i = 0; i < fStarPolygons.size(); i++) {
+//                Bbox_2 bbox = fStarPolygons[i].bbox();
+//                if(bbox.xmin() <= sConf.location.x() + ROBOT_SIZE && bbox.xmax() >= sConf.location.x() - ROBOT_SIZE && bbox.ymin() <= sConf.location.y() + ROBOT_SIZE && bbox.ymax() >= sConf.location.y() - ROBOT_SIZE)
+//                {
+//                    Polygon_wh_2 joinResult;
+//                    const bool doesIntersect = CGAL::join(fStarPolygons[i], aura, joinResult);
+//                    if (doesIntersect)
+//                    {
+//                        adjSConfs[i].push_back(sConf);
+//                    }
+//                }
+//            }
+//        }
+//        for(const auto& tConf : freeSpace.targetConfigurations) {
+//            const Polygon_2 aura = Utils::generateRobotAura(tConf.location);
+//            for (int i = 0; i < fStarPolygons.size(); i++) {
+//                Bbox_2 bbox = fStarPolygons[i].bbox();
+//                if(bbox.xmin() <= tConf.location.x() + ROBOT_SIZE && bbox.xmax() >= tConf.location.x() - ROBOT_SIZE && bbox.ymin() <= tConf.location.y() + ROBOT_SIZE && bbox.ymax() >= tConf.location.y() - ROBOT_SIZE){
+//                    Polygon_wh_2 joinResult;
+//                    std::chrono::high_resolution_clock::time_point indJoinStart = std::chrono::high_resolution_clock::now();
+//                    const bool doesIntersect = CGAL::join(fStarPolygons[i], aura, joinResult);
+//                    std::chrono::high_resolution_clock::time_point indJoinEnd = std::chrono::high_resolution_clock::now();
+//                    std::cout << "Ind join: " << std::chrono::duration_cast<std::chrono::microseconds >(indJoinEnd - indJoinStart).count() << std::endl;
+//                    if(doesIntersect) {
+//                        adjTConfs[i].push_back(tConf);
+//                    }
+//                }
+//            }
+//        }
+
+
+
+//        std::chrono::high_resolution_clock::time_point effEnd = std::chrono::high_resolution_clock::now();
+//        effTime += std::chrono::duration_cast<std::chrono::microseconds >(effEnd - joinEnd).count();
+
+        for (int i = 0; i < fStarPolygons.size(); i++) {
+            fStarNumber++;
+            if(adjSConfs[i].size() + adjTConfs[i].size() <= 1) {
                 continue; // FStar component is not relevant
             }
-            fStarNumber++;
-            fStarComponents.emplace_back(fStarPoly, adjSConfs, adjTConfs, F_STAR_PREFIX+ std::to_string(fStarNumber), freeSpace);
+            fStarComponents.emplace_back(fStarPolygons[i], adjSConfs[i], adjTConfs[i], F_STAR_PREFIX+ std::to_string(fStarNumber), freeSpace);
 
             //CGAL::draw(fStarPoly);
         }
+//        creationTime += std::chrono::duration_cast<std::chrono::microseconds >(std::chrono::high_resolution_clock::now() - effEnd).count();
 
     }
+//    std::cout << "DifTime: " << difTime << std::endl; TODO: Make subchapter out of this
+//    std::cout << "JoinTime: " << joinTime << std::endl;
+//    std::cout << "EffTime: " << effTime << std::endl;
+//    std::cout << "CreationTime: " << creationTime << std::endl;
 
     //std::cout << std::to_string(fStarComponents.size()) << std::endl;
 
@@ -254,4 +271,52 @@ std::vector<STConf> WSFreeSpaceGenerator::getAdjacentConfigurations(const Polygo
 
     return adjacentConfigurations;
 }
-
+void WSFreeSpaceGenerator::associateByJoining(const std::vector<Polygon_wh_2> &fStarPolys, const std::vector<STConf> &confLocations, std::unordered_map<int, std::vector<STConf>> &associationMap)
+{
+    for(const auto& stConf : confLocations) {
+        const Polygon_2 aura = Utils::generateRobotAura(stConf.location);
+        for (int i = 0; i < fStarPolys.size(); i++) {
+            Bbox_2 bbox = fStarPolys[i].bbox();
+            if(bbox.xmin() <= stConf.location.x() + ROBOT_SIZE && bbox.xmax() >= stConf.location.x() - ROBOT_SIZE && bbox.ymin() <= stConf.location.y() + ROBOT_SIZE && bbox.ymax() >= stConf.location.y() - ROBOT_SIZE)
+            {
+                Polygon_wh_2 joinResult;
+                const bool doesIntersect = CGAL::join(fStarPolys[i], aura, joinResult);
+                if (doesIntersect)
+                {
+                    associationMap[i].push_back(stConf);
+                }
+            }
+        }
+    }
+}
+bool WSFreeSpaceGenerator::haveOverlappingEdges(const Polygon_2& poly1, const Polygon_2& poly2)
+{
+    for (const auto& polyEdge : poly1.edges()) {
+        for(const auto& auraEdge : poly2.edges()) {
+            if(CGAL::do_intersect(polyEdge, auraEdge)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+void WSFreeSpaceGenerator::associateEfficiently(const std::vector<Polygon_wh_2> &fStarPolys, const std::vector<STConf> &confLocations, std::unordered_map<int, std::vector<STConf>> &associationMap)
+{
+    for(const auto& stConf : confLocations) {
+        const Polygon_2 aura = Utils::generateRobotAura(stConf.location);
+        for (int i = 0; i < fStarPolys.size(); i++) {
+            Bbox_2 bbox = fStarPolys[i].bbox();
+            if(bbox.xmin() <= stConf.location.x() + ROBOT_SIZE && bbox.xmax() >= stConf.location.x() - ROBOT_SIZE && bbox.ymin() <= stConf.location.y() + ROBOT_SIZE && bbox.ymax() >= stConf.location.y() - ROBOT_SIZE){
+                const bool isContainedIn = fStarPolys[i].outer_boundary().has_on_bounded_side(stConf.location);
+                if(isContainedIn) {
+                    associationMap[i].push_back(stConf);
+                    break;
+                } else {
+                    if(haveOverlappingEdges(fStarPolys[i].outer_boundary(), aura)) {
+                        associationMap[i].push_back(stConf);
+                    }
+                }
+            }
+        }
+    }
+}

@@ -23,7 +23,12 @@ add_executable(mrmp_implementation main.cpp RandomGenerator.cpp RandomGenerator.
         Reports/ReportOutput.h
         SharedSolverComponents/InterferenceForestGenerator.cpp
         SharedSolverComponents/InterferenceForestGenerator.h
-        SharedSolverComponents/InterferenceForestGenerator.h)
+        SharedSolverComponents/InterferenceForestGenerator.h
+        chrTypedefs.h
+        ChromaticSolver/ChrFreeSpaceGenerator.cpp
+        ChromaticSolver/ChrFreeSpaceGenerator.h
+        SharedSolverComponents/FreeSpaceHelper.cpp
+        SharedSolverComponents/FreeSpaceHelper.h)
 
 include(C:/Users/joelh/Documents/CppStuff/vcpkg/scripts/buildsystems/vcpkg.cmake)
 

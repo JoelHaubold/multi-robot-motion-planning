@@ -39,7 +39,11 @@
  * TODO: Test special cases as in disk shaped master thesis
  * TODO: Output validator
  * TODO: Generate new workspace polygon if point limit is reached
- * TODO: Individual timers per major calculation step
+ * TODO: FSTAR Generation. Check number of generated stConfs. If one instant assign all STConfs. Else find smallest polygon https://web.archive.org/web/20100405070507/http://valis.cs.uiuc.edu/~sariel/research/CG/compgeom/msg00831.html check if locations are in bounding box+2 then join/ FIrst also check if . Repeat
+ * TODO: Also use these methods in dif->stAssoc->(MGCrea)
+ * TODO: Also iterate over fstar comps not m stconfs
+ * TODO: Ask Carolim über nicht den Prozess beschreiben vs above provess beschreiben
+ * TODO: Maybe focus on creating better paths instead of which paths to choose
  */
 
 //try {

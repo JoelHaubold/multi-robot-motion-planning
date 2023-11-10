@@ -113,8 +113,8 @@ struct FStarComponent {
     const std::string fStarId;
 
     const FreeSpaceComponent& parent;
-    const std::vector<STConf> adjacentSConfs;
-    const std::vector<STConf> adjacentTConfs;
+    std::vector<STConf> adjacentSConfs;
+    std::vector<STConf> adjacentTConfs;
 };
 
 struct MotionSchedule{
@@ -123,10 +123,40 @@ struct MotionSchedule{
 };
 
 struct TimeReport{
-    TimeReport(long long freeSpaceTime, long long graphWorkTime) : freeSpaceTime(freeSpaceTime), graphWorkTime(graphWorkTime), totalTime(freeSpaceTime + graphWorkTime) {};
-    const long long freeSpaceTime;
-    const long long graphWorkTime;
-    const long long totalTime;
+    TimeReport(const long long int freeSpaceTime, const long long int stAssociationTime, const long long int fStarTime, const long long int mgCreationTime, const long long int difTime, const long long int mgSolveTime)
+        : freeSpaceTime(freeSpaceTime), stAssociationTime(stAssociationTime), fStarTime(fStarTime), mgCreationTime(mgCreationTime), difTime(difTime), mgSolveTime(mgSolveTime),
+          totalTime(freeSpaceTime + stAssociationTime + fStarTime + mgCreationTime + difTime + mgSolveTime) {}
+    long long freeSpaceTime;
+    long long stAssociationTime;
+    long long fStarTime;
+    long long mgCreationTime;
+    long long difTime;
+    long long mgSolveTime;
+
+    long long totalTime;// = freeSpaceTime + stAssociationTime + fStarTime + mgCreationTime + difTime + mgSolveTime;
+
+    TimeReport operator+(const TimeReport& other) const {
+        return {
+            freeSpaceTime + other.freeSpaceTime,
+            stAssociationTime + other.stAssociationTime,
+            fStarTime + other.fStarTime,
+            mgCreationTime + other.mgCreationTime,
+            difTime + other.difTime,
+            mgSolveTime + other.mgSolveTime
+        };
+    }
+
+    TimeReport operator/(const int divisor) const {
+        return {
+            freeSpaceTime / divisor,
+            stAssociationTime / divisor,
+            fStarTime / divisor,
+            mgCreationTime / divisor,
+            difTime / divisor,
+            mgSolveTime / divisor
+        };
+    }
+
 };
 
 struct TestRunReport{
