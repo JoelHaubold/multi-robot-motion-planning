@@ -79,3 +79,36 @@ Polygon_wh_2 FreeSpaceHelper::getObstaclePolygon(const Polygon_2& boundingBox, c
 
     return uncheckedObstaclePolygon;
 }
+
+//bool FreeSpaceHelper::haveOverlappingEdges(const Polygon_2& poly1, const Polygon_2& poly2)
+//{
+//    for (const auto& polyEdge : poly1.edges()) {
+//        for(const auto& auraEdge : poly2.edges()) {
+//            if(CGAL::do_intersect(polyEdge, auraEdge)) {
+//                return true;
+//            }
+//        }
+//    }
+//    return false;
+//}
+void FreeSpaceHelper::associateEfficiently(const std::vector<Polygon_wh_2> &polygonOptions, const std::vector<STConf> &confLocations, std::unordered_map<int, std::vector<STConf>> &associationMap)
+{
+    for(const auto& stConf : confLocations) {
+        const Polygon_2 aura = Utils::generateRobotAura(stConf.location);
+        for (int i = 0; i < polygonOptions.size(); i++) {
+            Bbox_2 bbox = polygonOptions[i].bbox();
+            if(bbox.xmin() <= stConf.location.x() + ROBOT_SIZE && bbox.xmax() >= stConf.location.x() - ROBOT_SIZE && bbox.ymin() <= stConf.location.y() + ROBOT_SIZE && bbox.ymax() >= stConf.location.y() - ROBOT_SIZE){
+                const bool isContainedIn = polygonOptions[i].outer_boundary().has_on_bounded_side(stConf.location);
+                if(isContainedIn) {
+                    associationMap[i].push_back(stConf);
+                    break; //STConf aura is contained fully in polygon -> Can't intersect other polygons
+                } else {
+                    if(Utils::haveOverlappingEdges(polygonOptions[i].outer_boundary(), aura)) {
+                        associationMap[i].push_back(stConf);
+                    }
+                }
+            }
+        }
+    }
+}
+

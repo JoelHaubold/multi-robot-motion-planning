@@ -8,7 +8,7 @@
 #include <boost/optional.hpp>
 #include <vector>
 
-const boost::optional<unsigned int> PRE_SET_SEED = 812545717;//boost::none;
+const boost::optional<unsigned int> PRE_SET_SEED = boost::none;
 const double MAX_WORKSPACE_SIZE = 170;
 const std::vector<int> WORKSPACE_COMPLEXITY = {40, 80};
 const std::vector<int> NMBR_START_POS = {10, 15, 20, 25, 35, 45, 55, 65, 75};

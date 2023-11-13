@@ -121,6 +121,7 @@ STConfigurations MRMPInputGenerator::getStartAndTargetConfigurations(const std::
     //    startConfsPerComponent.emplace_back();
     //    targetConfsPerComponent.emplace_back();
     //  }
+    const bool singleFreeSpace = containingPolygons.size() == 1;
 
     double xmin = 0.0;
     double xmax = 0.0;
@@ -181,8 +182,8 @@ STConfigurations MRMPInputGenerator::getStartAndTargetConfigurations(const std::
                 {
                     continue;
                 }
-                if (!conformsToChromaticDistance(pairPoint, startConfsGenerated, targetConfsGenerated, !isStartConf) ||
-                    !conformsToChromaticDistance(pairPoint, {}, {randomPoint}))
+                if (!conformsToChromaticDistance(pairPoint, startConfsGenerated, targetConfsGenerated, !isStartConf, singleFreeSpace) ||
+                    !conformsToChromaticDistance(pairPoint, {}, {randomPoint}, singleFreeSpace))
                 {
                     continue;
                 }
@@ -222,18 +223,18 @@ Point_2 MRMPInputGenerator::getRandomPoint(double xmin, double xmax, double ymin
     return Point_2{randomX, randomY};
 }
 
-bool MRMPInputGenerator::conformsToChromaticDistance(const Point_2 &conf, const std::vector<Point_2> &startConfs, const std::vector<Point_2> &targetConfs, bool pointIsStartConf)
+bool MRMPInputGenerator::conformsToChromaticDistance(const Point_2 &conf, const std::vector<Point_2> &startConfs, const std::vector<Point_2> &targetConfs, bool pointIsStartConf, bool singleFreeSpace)
 {
     if (pointIsStartConf)
     {
-        return conformsToChromaticDistance(conf, startConfs, targetConfs);
+        return conformsToChromaticDistance(conf, startConfs, targetConfs, singleFreeSpace);
     } else
     {
-        return conformsToChromaticDistance(conf, targetConfs, startConfs);
+        return conformsToChromaticDistance(conf, targetConfs, startConfs, singleFreeSpace);
     }
 }
 
-bool MRMPInputGenerator::conformsToChromaticDistance(const Point_2 &conf, const std::vector<Point_2> &sameTypeConfs, const std::vector<Point_2> &differentTypeConfs)
+bool MRMPInputGenerator::conformsToChromaticDistance(const Point_2 &conf, const std::vector<Point_2> &sameTypeConfs, const std::vector<Point_2> &differentTypeConfs, bool singleFreeSpace)
 {
     //    bool monochromaticlySeparated = std::all_of(sameTypeConfs.begin(), sameTypeConfs.end(), [&conf](const Point_2& stConf){
     //        return CGAL::abs(conf.x() - stConf.x()) < MONOCHROMATIC_SEPARATION && CGAL::abs(conf.y() - stConf.y()) < MONOCHROMATIC_SEPARATION;
@@ -243,7 +244,7 @@ bool MRMPInputGenerator::conformsToChromaticDistance(const Point_2 &conf, const 
     //        return CGAL::abs(conf.x() - stConf.x()) < MONOCHROMATIC_SEPARATION && CGAL::abs(conf.y() - stConf.y()) < MONOCHROMATIC_SEPARATION;
     //    });
     double monochromaticSeperation = USE_WS_SOLVER ? WS_SEPERATION : MONOCHROMATIC_SEPARATION;
-    double bichromaticSeperation = USE_WS_SOLVER ? WS_SEPERATION : BICHROMATIC_SEPARATION;
+    double bichromaticSeperation = USE_WS_SOLVER ? WS_SEPERATION : (singleFreeSpace ? 0.0 : BICHROMATIC_SEPARATION);
     for (const auto &stConf: sameTypeConfs)
     {
         if (CGAL::max(CGAL::abs(conf.x() - stConf.x()), CGAL::abs(conf.y() - stConf.y())) < monochromaticSeperation)

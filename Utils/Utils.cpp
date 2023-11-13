@@ -110,6 +110,17 @@ double Utils::getRuntimeBound(const int workspaceComplexity, const int nmbrStart
 {
     return (workspaceComplexity+nmbrStartConfs)*std::log(workspaceComplexity+nmbrStartConfs) + std::pow(nmbrStartConfs,2) + nmbrStartConfs*workspaceComplexity;
 }
+bool Utils::haveOverlappingEdges(const Polygon_2 &poly1, const Polygon_2 &poly2)
+{
+    for (const auto& polyEdge : poly1.edges()) {
+        for(const auto& auraEdge : poly2.edges()) {
+            if(CGAL::do_intersect(polyEdge, auraEdge)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
 
 //Polygon_2 Utils::generateRobotAura(const Point_2& center, double sizeOfAura) {
 //    auto xc = center.x();

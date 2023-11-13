@@ -7,19 +7,21 @@
 
 #include "../mytypedefs.h"
 
-class Utils
+class Utils //TODO: Split into named utils
 {
-    public:
-      static Polygon_2 generateBoundingBox(const Bbox_2& bbox);
-      static Polygon_2 generateRobot();
-      static Polygon_2 generateRobotAura();
-      static Polygon_2 generateRobotAura(const Point_2& center);
-      //static Polygon_2 generateRobotAura(const Point_2& center, double sizeOfAura);
-      static Point_2 getLowestIntersectionPoint(const Segment_2& verticalRay, const Polygon_2& polyToIntersect);
-      static double getSmallestDistanceToOrigin(const Point_2& seg1Origin, const Segment_2 & seg1, const Segment_2 & seg2);
-      static Point_2 getClosestIntersectionPointToOrigin(const Point_2& seg1Origin, const Segment_2 & seg1, const Segment_2 & seg2);
+public:
+    static Polygon_2 generateBoundingBox(const Bbox_2& bbox);
+    static Polygon_2 generateRobot();
+    static Polygon_2 generateRobotAura();
+    static Polygon_2 generateRobotAura(const Point_2& center);
+    //static Polygon_2 generateRobotAura(const Point_2& center, double sizeOfAura);
+    static Point_2 getLowestIntersectionPoint(const Segment_2& verticalRay, const Polygon_2& polyToIntersect);
+    static double getSmallestDistanceToOrigin(const Point_2& seg1Origin, const Segment_2 & seg1, const Segment_2 & seg2);
+    static Point_2 getClosestIntersectionPointToOrigin(const Point_2& seg1Origin, const Segment_2 & seg1, const Segment_2 & seg2);
 
-      static double getRuntimeBound(const int workspaceComplexity, const int nmbrStartConfs);
+    static double getRuntimeBound(const int workspaceComplexity, const int nmbrStartConfs);
+
+    static bool haveOverlappingEdges(const Polygon_2& poly1, const Polygon_2& poly2);
 };
 
 

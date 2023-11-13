@@ -310,7 +310,7 @@ void WSFreeSpaceGenerator::associateEfficiently(const std::vector<Polygon_wh_2> 
                 const bool isContainedIn = fStarPolys[i].outer_boundary().has_on_bounded_side(stConf.location);
                 if(isContainedIn) {
                     associationMap[i].push_back(stConf);
-                    break;
+                    break; //STConf aura is contained fully in polygon -> Can't intersect other polygons
                 } else {
                     if(haveOverlappingEdges(fStarPolys[i].outer_boundary(), aura)) {
                         associationMap[i].push_back(stConf);

@@ -5,6 +5,8 @@
 #ifndef MRMP_IMPLEMENTATION_CHRTYPEDEFS_H
 #define MRMP_IMPLEMENTATION_CHRTYPEDEFS_H
 
+#include <utility>
+
 #include "mytypedefs.h"
 
 
@@ -26,23 +28,54 @@
  */
 
 struct BlockingArea {
-    std::string baId;
-    Polygon_2& blockingArea;
-    STConf& blocker;
+    BlockingArea(std::string baId, Polygon_2 blockingArea, STConf blocker, const std::vector<std::string> &adjacentResComponentIds) : baId(std::move(baId)), blockingArea(std::move(blockingArea)), blocker(std::move(blocker)), adjacentResComponentIds(adjacentResComponentIds) {}
+
+    const std::string baId;
+    const Polygon_2 blockingArea;
+    const STConf blocker;
+    const std::vector<std::string> adjacentResComponentIds;
 };
 
 struct ResidualComponent {
+    ResidualComponent(std::string id, Polygon_2 resComponentPolygon, const std::vector<STConf> &startConfigurations, const std::vector<STConf> &targetConfigurations) : id(std::move(id)), resComponentPolygon(std::move(resComponentPolygon)), startConfigurations(startConfigurations), targetConfigurations(targetConfigurations) {}
+
     const std::string id;
-    const Polygon_2& resComponentPolygon;
-    const std::vector<BlockingArea> adjacentBlockingAreas;
+    const Polygon_2 resComponentPolygon;
+    const std::vector<STConf> startConfigurations;
+    const std::vector<STConf> targetConfigurations;
+    //const std::vector<BlockingArea> adjacentBlockingAreas;
 };
 
-struct ChrFComponents {
-    const std::vector<FStarComponent> fStarComponents;
-    const std::vector<ResidualComponent> fResidualComponents;
+struct ChrFreeSpaceSubsets {
+    std::vector<FStarComponent> fStarComponents;
+    std::vector<BlockingArea> blockers;
+    std::vector<ResidualComponent> residualComponents;
 };
 
+/*
+ * Target configuration located in the aura of a start configuration
+ */
+struct Tq {
+    Tq(STConf tConf, STConf includingSConf) : tConf(std::move(tConf)), includingSConf(std::move(includingSConf)) {}
 
+    const STConf tConf;
+    const STConf includingSConf;
+};
+
+struct RCGVertexProperty {
+    ResidualComponent& residualComponent;
+};
+struct RCGEdgeProperty {
+    BlockingArea& blockingArea;
+};
+
+typedef boost::adjacency_list<
+    boost::vecS,
+    boost::vecS,
+    boost::undirectedS,
+    RCGVertexProperty,
+    RCGEdgeProperty>                                       ResidualComponentGraph;
+typedef boost::graph_traits<DirectedInterferenceForest>::vertex_descriptor DIFVertex;
 
 
 
