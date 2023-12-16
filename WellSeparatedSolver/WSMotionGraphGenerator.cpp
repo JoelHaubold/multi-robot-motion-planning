@@ -7,6 +7,7 @@
 #include "../Utils/GraphvizDrawUtils.h"
 #include "../constants.h"
 #include <CGAL/Boolean_set_operations_2.h>
+#include "../SharedSolverComponents/MGCreationHelper.h"
 //#include "../Utils/SFMLDrawUtils.h"
 //#include <CGAL/Boolean_set_operations_2/join.h>
 #include <CGAL/intersections.h>
@@ -15,6 +16,8 @@
 
 
 std::unordered_map<std::string, Motion_Graph> WSMotionGraphGenerator::getMotionGraphs(const std::vector<FreeSpaceComponent>& fSpaceComps, const std::vector<FStarComponent>& fStarComps) {
+    //Solving random WS Problem with params workspaceComplexity: 100; nmbrStartPositions: 15; maxWorkspaceSize 170
+    //Seed = 1679184067
     std::unordered_map<std::string, Motion_Graph> fSpaceId2motionGraph;
     STConfId2MGVertex stIds2Vertices;
     for(const auto& fSpaceComp : fSpaceComps) {
@@ -23,7 +26,7 @@ std::unordered_map<std::string, Motion_Graph> WSMotionGraphGenerator::getMotionG
         }
         //std::cout << "Vertices for" << fSpaceComp.freeSpaceId << std::endl;
         Motion_Graph& mg = fSpaceId2motionGraph[fSpaceComp.freeSpaceId];
-        insertVertices(mg, fSpaceComp.startConfigurations, fSpaceComp.targetConfigurations, stIds2Vertices);
+        MGCreationHelper::insertVertices(mg, fSpaceComp.startConfigurations, fSpaceComp.targetConfigurations, stIds2Vertices);
     }
 
     for(const auto& fStarComp : fStarComps){
@@ -34,19 +37,19 @@ std::unordered_map<std::string, Motion_Graph> WSMotionGraphGenerator::getMotionG
     return fSpaceId2motionGraph;
 }
 
-void WSMotionGraphGenerator::insertVertices(Motion_Graph &motionGraph, const std::vector<STConf>& startConfs, const std::vector<STConf>& targetConfs, STConfId2MGVertex &stId2Vertex)
-{
-    std::for_each(startConfs.begin(), startConfs.end(), [&motionGraph, &stId2Vertex](const auto& startConf) {
-        //Motion_Graph::vertex_descriptor vd = boost::add_vertex(motionGraph);
-        MGVertex v = boost::add_vertex(MGVertexProperty{startConf.id,startConf.location, true}, motionGraph);
-        stId2Vertex[startConf.id] = v;
-    });
-    std::for_each(targetConfs.begin(), targetConfs.end(), [&motionGraph, &stId2Vertex](const auto& targetConf) {
-        //Motion_Graph::vertex_descriptor vd = boost::add_vertex(motionGraph);
-        MGVertex v = boost::add_vertex(MGVertexProperty{targetConf.id,targetConf.location, false}, motionGraph);
-        stId2Vertex[targetConf.id] = v;
-    });
-}
+//void WSMotionGraphGenerator::insertVertices(Motion_Graph &motionGraph, const std::vector<STConf>& startConfs, const std::vector<STConf>& targetConfs, STConfId2MGVertex &stId2Vertex)
+//{
+//    std::for_each(startConfs.begin(), startConfs.end(), [&motionGraph, &stId2Vertex](const auto& startConf) {
+//        //Motion_Graph::vertex_descriptor vd = boost::add_vertex(motionGraph);
+//        MGVertex v = boost::add_vertex(MGVertexProperty{startConf.id,startConf.location, true}, motionGraph);
+//        stId2Vertex[startConf.id] = v;
+//    });
+//    std::for_each(targetConfs.begin(), targetConfs.end(), [&motionGraph, &stId2Vertex](const auto& targetConf) {
+//        //Motion_Graph::vertex_descriptor vd = boost::add_vertex(motionGraph);
+//        MGVertex v = boost::add_vertex(MGVertexProperty{targetConf.id,targetConf.location, false}, motionGraph);
+//        stId2Vertex[targetConf.id] = v;
+//    });
+//}
 
 void WSMotionGraphGenerator::insertEdges(Motion_Graph& motionGraph, const FStarComponent& fStarComponent, const STConfId2MGVertex & id2Vertex)//, const Polygon_2& freeSpaceSet)
 {
@@ -78,8 +81,7 @@ void WSMotionGraphGenerator::getMGForFStarComponent(Motion_Graph& motionGraph, c
     for(const MGVertex & relevantVertex : relevantVertices) {
         MGVertexProperty vertexProps = motionGraph[relevantVertex];
         Point_2 vertexLocation = vertexProps.location;
-        bool isInside = outerBoundary.bounded_side(vertexLocation) == CGAL::ON_BOUNDED_SIDE;
-        if(!isInside) {
+        if(outerBoundary.has_on_unbounded_side(vertexLocation)) {
             RepPoint repPoint = getRepPoint(outerBoundary, vertexLocation, relevantVertex);
             polyVertex2RepPoint[repPoint.polySegmentIndex] = repPoint;
         } else {
@@ -227,7 +229,7 @@ RepPoint WSMotionGraphGenerator::getRepPoint(const Polygon_2& outerBoundary, con
     //Iterate through vertices if contains edge of aura we take as rep
 
     int i = 0;
-    for(const Point_2& polyCorner : outerBoundary.vertices()) { //TODO: Name Polygon vertices corners
+    for(const Point_2& polyCorner : outerBoundary.vertices()) {
         //std::cout << vertex.x() << " grp; "<<vertex.y() << std::endl;
         auto it = std::find(candidates.begin(), candidates.end(), polyCorner);
         if (it != candidates.end()) {
@@ -251,9 +253,7 @@ RepPoint WSMotionGraphGenerator::getRepPoint(const Polygon_2& outerBoundary, con
         }
         i++;
     }
-
-    std::cout << "Point not found" << std::endl;
-    return {};
+    throw std::runtime_error("Could not find representative point for st configuration");
 }
 
 RepPoint WSMotionGraphGenerator::getRayIntersectionWithFreeSpace(const Point_2& shooterLocation, const Polygon_2& outerBoundary, const K::FT& rayYLimit, const MGVertex & forVertex) {

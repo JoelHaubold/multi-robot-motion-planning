@@ -36,7 +36,9 @@ add_executable(mrmp_implementation main.cpp RandomGenerator.cpp RandomGenerator.
         ChromaticSolver/ChrMotionGraphSolver.cpp
         ChromaticSolver/ChrMotionGraphSolver.h
         ChromaticSolver/ChrResidualComponentGraphGenerator.cpp
-        ChromaticSolver/ChrResidualComponentGraphGenerator.h)
+        ChromaticSolver/ChrResidualComponentGraphGenerator.h
+        SharedSolverComponents/MGCreationHelper.cpp
+        SharedSolverComponents/MGCreationHelper.h)
 
 include(C:/Users/joelh/Documents/CppStuff/vcpkg/scripts/buildsystems/vcpkg.cmake)
 

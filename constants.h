@@ -8,8 +8,8 @@
 const int OBSTACLE_SPACE_OFFSET = 5;
 const int ROBOT_SIZE = 2;
 
-const int NMBR_POINT_TRIES = 20000;
-const int NMBR_PAIR_POINT_TRIES = 1000;
+const int NMBR_POINT_TRIES_FACTOR = 20;
+const int NMBR_PAIR_POINT_TRIES = 50;
 
 const bool GENERATE_DEBUG_DRAWINGS = false;
 

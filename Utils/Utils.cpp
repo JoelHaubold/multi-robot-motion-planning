@@ -121,6 +121,11 @@ bool Utils::haveOverlappingEdges(const Polygon_2 &poly1, const Polygon_2 &poly2)
     }
     return false;
 }
+bool Utils::aurasOverlap(const Point_2& p1, const Point_2& p2)
+{
+    return p1.x() < p2.x() + 2*ROBOT_SIZE && p1.x() > p2.x() - 2*ROBOT_SIZE
+           && p1.y() < p2.y() + 2*ROBOT_SIZE&& p1.x() > p2.x() - 2*ROBOT_SIZE;
+}
 
 //Polygon_2 Utils::generateRobotAura(const Point_2& center, double sizeOfAura) {
 //    auto xc = center.x();

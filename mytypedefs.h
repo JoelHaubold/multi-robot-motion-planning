@@ -53,8 +53,6 @@ struct MGEdgeProperty {
     bool isBlockable = false;
 };
 
-
-
 typedef boost::adjacency_list<
     boost::vecS,               // OutEdgeList type
     boost::vecS,               // VertexList type
@@ -65,6 +63,12 @@ typedef boost::adjacency_list<
 typedef boost::graph_traits<Motion_Graph>::vertex_descriptor MGVertex;
 typedef boost::graph_traits<Motion_Graph>::edge_descriptor MGEdge;
 typedef std::unordered_map<std::string, MGVertex> STConfId2MGVertex;
+
+struct RepPoint{
+    Point_2 locationOnPolyBoundary;
+    int polySegmentIndex;
+    MGVertex associatedMGVertex;
+};
 
 struct DIFVertexProperty {
     std::string fSpaceId;  // String associated with the vertex

@@ -22,6 +22,7 @@ public:
     static double getRuntimeBound(const int workspaceComplexity, const int nmbrStartConfs);
 
     static bool haveOverlappingEdges(const Polygon_2& poly1, const Polygon_2& poly2);
+    static bool aurasOverlap(const Point_2& p1, const Point_2& p2);
 };
 
 

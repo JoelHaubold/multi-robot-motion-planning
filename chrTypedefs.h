@@ -55,12 +55,16 @@ struct ChrFreeSpaceSubsets {
 /*
  * Target configuration located in the aura of a start configuration
  */
-struct Tq {
-    Tq(STConf tConf, STConf includingSConf) : tConf(std::move(tConf)), includingSConf(std::move(includingSConf)) {}
 
-    const STConf tConf;
-    const STConf includingSConf;
+
+struct Tq {
+    Tq(const STConf& tConf, const STConf& includingSConf) : tConf(tConf), includingSConf(includingSConf) {}
+
+    const STConf& tConf;
+    const STConf& includingSConf;
 };
+
+typedef std::unordered_map<std::string, std::vector<Tq>> FreeSpace2Tqs;
 
 struct RCGVertexProperty {
     ResidualComponent& residualComponent;

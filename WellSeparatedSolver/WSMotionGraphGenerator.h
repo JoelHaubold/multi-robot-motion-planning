@@ -7,12 +7,6 @@
 
 #include "../mytypedefs.h"
 
-struct RepPoint{
-    Point_2 locationOnPolyBoundary;
-    int polySegmentIndex;
-    MGVertex associatedMGVertex;
-};
-
 class WSMotionGraphGenerator
 {
 public:
@@ -27,7 +21,6 @@ private:
     static std::vector<Segment_2> getAuraPath(const Point_2& from, const Point_2& to, const Polygon_2& freeSpaceBoundary);
     static MGEdgeProperty getRayEdgeProperty(const Point_2& rayShooter, const std::string& hitVertexId, const Point_2& hitVertex, const Polygon_2& freeSpace);
     static MGEdgeProperty getListEdgeProperty(const Motion_Graph& mg, const RepPoint& vertex1Rep, const RepPoint& vertex2Rep, const Polygon_2& freeSpaceBoundary, const Polygon_2& fStarBoundary);
-    static void insertVertices(Motion_Graph &motionGraph, const std::vector<STConf>& startConfs, const std::vector<STConf>& targetConfs , STConfId2MGVertex &stId2Vertex);
     static void insertEdges(Motion_Graph& motionGraph, const FStarComponent& fStarComponent, const STConfId2MGVertex & id2Vertex);
 };
 

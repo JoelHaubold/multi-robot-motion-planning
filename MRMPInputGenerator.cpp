@@ -152,7 +152,7 @@ STConfigurations MRMPInputGenerator::getStartAndTargetConfigurations(const std::
     int pointsAccepted = 0;
     std::vector<Point_2> startConfsGenerated;
     std::vector<Point_2> targetConfsGenerated;
-    while (pointsAccepted < 2 * numberStartConfigs && pointsGenerated < NMBR_POINT_TRIES)
+    while (pointsAccepted < 2 * numberStartConfigs && pointsGenerated < 2 * numberStartConfigs * NMBR_POINT_TRIES_FACTOR)
     {
         //Ones polygon gets a point, genarate a second point in that polygon, if that fails x times don't use the first point.
         Point_2 randomPoint = getRandomPoint(xmin, xmax, ymin, ymax);
@@ -175,7 +175,7 @@ STConfigurations MRMPInputGenerator::getStartAndTargetConfigurations(const std::
             //std::cout << "For iter" << std::endl;
             Bbox_2 bbox = poly.bbox();
             //Try to generate accompanying target conf
-            for (int j = 0; i < NMBR_PAIR_POINT_TRIES; j++)
+            for (int j = 0; j < NMBR_PAIR_POINT_TRIES; j++)
             {
                 Point_2 pairPoint = getRandomPoint(bbox.xmin(), bbox.xmax(), bbox.ymin(), bbox.ymax());
                 if (!poly.has_on_bounded_side(pairPoint))
@@ -196,7 +196,11 @@ STConfigurations MRMPInputGenerator::getStartAndTargetConfigurations(const std::
             }
         }
     }
-    std::cout << "Generated " << pointsGenerated << " points for " << numberStartConfigs * 2 << " points"
+    if(pointsGenerated == 2 * numberStartConfigs * NMBR_POINT_TRIES_FACTOR) {
+        std::cerr << "Only found enough valid configurations for " << pointsAccepted << " st Configurations" << std::endl;
+    }
+
+    std::cout << "Tried " << pointsGenerated << " candidate points for " << numberStartConfigs * 2 << " st Configurations"
               << std::endl;
     STConfigurations stconfs;
 
