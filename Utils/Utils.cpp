@@ -127,6 +127,16 @@ bool Utils::aurasOverlap(const Point_2& p1, const Point_2& p2)
            && p1.y() < p2.y() + 2*ROBOT_SIZE&& p1.x() > p2.x() - 2*ROBOT_SIZE;
 }
 
+double Utils::getPercentageAlongSegment(const Point_2 pointOnSegment, Segment_2 segment)
+{
+    double segmentLength = CGAL::to_double(segment.squared_length());
+    double distanceToSource = CGAL::to_double(CGAL::squared_distance(segment.source(), pointOnSegment));
+
+    double percentage = (distanceToSource / segmentLength) * 100.0;
+
+    return percentage;
+}
+
 //Polygon_2 Utils::generateRobotAura(const Point_2& center, double sizeOfAura) {
 //    auto xc = center.x();
 //    auto yc = center.y();

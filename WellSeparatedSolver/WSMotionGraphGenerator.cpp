@@ -126,72 +126,38 @@ void WSMotionGraphGenerator::getMGForFStarComponent(Motion_Graph& motionGraph, c
  * Iterate through vertices. If we find repPoint add to vector
  */
 
+bool compareRepPoints(const RepPoint& rp1, const RepPoint& rp2) {
+    // Compare by polySegmentIndex
+    if (rp1.polySegmentIndex < rp2.polySegmentIndex)
+        return true;
+    else if (rp1.polySegmentIndex > rp2.polySegmentIndex)
+        return false;
+
+    // If polySegmentIndex is the same, compare by positionAlongSegment
+    return rp1.positionAlongSegment < rp2.positionAlongSegment;
+}
+
 void WSMotionGraphGenerator::generateListEdges(Motion_Graph& motionGraph, const FStarComponent& fStarComp ,const std::list<Point_2>& corners, const std::map<int, RepPoint>& polyVertex2RepPoint, const std::map<int, std::vector<RepPoint>>& polyVertex2RayRepPoints) {
 
 
 //    std::for_each(repPoints.begin(), repPoints.end(), [&motionGraph](const auto& repPoint) {
 //        std::cout << motionGraph[get<1>(repPoint)].id << std::endl;
 //    });
-    int i = 0;
     std::vector<RepPoint> sortedRepPoints;
-    Point_2 lastCorner;
-    for(const Point_2& corner : corners) {
-        //std::cout << corner.x() << " gle; "<<corner.y() << std::endl;
-        if(i!=0) {
-            auto it2 =  polyVertex2RayRepPoints.find(i-1);
-            if (it2 != polyVertex2RayRepPoints.end()) {
-                if(it2->second.size() == 1) {
-                    sortedRepPoints.push_back(it2->second.front());
-                } else {
-                    std::vector<RepPoint> rayRepPoints = it2->second;
-                    if(lastCorner.x() < corner.x()){
-                        std::sort(rayRepPoints.begin(), rayRepPoints.end(), [](const RepPoint& p1, const RepPoint& p2) {
-                            return p1.locationOnPolyBoundary.x() < p2.locationOnPolyBoundary.x();
-                        });
-                    } else {
-                        std::sort(rayRepPoints.begin(), rayRepPoints.end(), [](const RepPoint& p1, const RepPoint& p2) {
-                            return p1.locationOnPolyBoundary.x() > p2.locationOnPolyBoundary.x();
-                        });
-                    }
 
-                    //std::cout << corner.x() << " ; "<<lastCorner.x() << std::endl;
-                    for(const RepPoint& rayRepPoint : rayRepPoints) {
-                        //std::cout << motionGraph[rayRepPoint.associatedMGVertex].id << " ; "<<rayRepPoint.locationOnPolyBoundary.x()<<" ; "<< rayRepPoint.locationOnPolyBoundary.y() << std::endl;
-                        sortedRepPoints.push_back(rayRepPoint);
-                    }
-                }
-            }
-        }
-
-        auto it =  polyVertex2RepPoint.find(i);
-        if (it != polyVertex2RepPoint.end()) {
-            sortedRepPoints.push_back(it->second);
-        }
-        lastCorner = corner;
-        i++;
+    for (const auto& pair : polyVertex2RepPoint) {
+        const RepPoint& value = pair.second;
+        sortedRepPoints.push_back(value);
     }
 
-    const Point_2& vertex = corners.front();
-    auto it2 =  polyVertex2RayRepPoints.find(i-1);
-    if (it2 != polyVertex2RayRepPoints.end()) {
-        if(it2->second.size() == 1) {
-            sortedRepPoints.push_back(it2->second.front());
-        } else {
-            std::vector<RepPoint> rayRepPoints = it2->second;
-            if(lastCorner.x() < vertex.x()){
-                std::sort(rayRepPoints.begin(), rayRepPoints.end(), [](const RepPoint& p1, const RepPoint& p2) {
-                    return p1.locationOnPolyBoundary.x() < p2.locationOnPolyBoundary.x();
-                });
-            } else {
-                std::sort(rayRepPoints.begin(), rayRepPoints.end(), [](const RepPoint& p1, const RepPoint& p2) {
-                    return p1.locationOnPolyBoundary.x() > p2.locationOnPolyBoundary.x();
-                });
-            }
-            for(const RepPoint& rayRepPoint : rayRepPoints) {
-                sortedRepPoints.push_back(rayRepPoint);
-            }
+    for (const auto& pair : polyVertex2RayRepPoints) {
+        const std::vector<RepPoint>& vect = pair.second;
+        for (const auto& value : vect) {
+            sortedRepPoints.push_back(value);
         }
     }
+
+    std::sort(sortedRepPoints.begin(), sortedRepPoints.end(), compareRepPoints);
 
     if(sortedRepPoints.size() == 1) {
         return; // Vertices are already connected by ray segments
@@ -234,7 +200,7 @@ RepPoint WSMotionGraphGenerator::getRepPoint(const Polygon_2& outerBoundary, con
         auto it = std::find(candidates.begin(), candidates.end(), polyCorner);
         if (it != candidates.end()) {
             // The targetPoint is found in the list
-            return {*it, i, forVertex};
+            return {*it, i, 0.0, forVertex};
         }
         i++;
     }
@@ -244,10 +210,12 @@ RepPoint WSMotionGraphGenerator::getRepPoint(const Polygon_2& outerBoundary, con
             const auto result = CGAL::intersection(polyEdge, auraEdge);
             if(result) {
                 if (const Segment_2* s = boost::get<Segment_2>(&*result)) {
-                    return {s->source(), i, forVertex};
+                    double percentageAlongEdge = Utils::getPercentageAlongSegment(s->source(), polyEdge);
+                    return {s->source(), i, percentageAlongEdge, forVertex};
                 } else {
                     const Point_2* p = boost::get<Point_2 >(&*result);
-                    return {*p, i, forVertex};
+                    double percentageAlongEdge = Utils::getPercentageAlongSegment(*p, polyEdge);
+                    return {*p, i, percentageAlongEdge, forVertex};
                 }
             }
         }
@@ -262,6 +230,7 @@ RepPoint WSMotionGraphGenerator::getRayIntersectionWithFreeSpace(const Point_2& 
     Segment_2 rayToIntersect(shooterLocation, rayEndpoint);
      //TODO: Put in util?
     Point_2 lowestPoint = rayEndpoint;
+    Segment_2 segmentContainingPoint = {};
     int indexOfLowestPoint = 0;
     int i = -1;
     for(const auto& edge : outerBoundary.edges()) {
@@ -274,17 +243,20 @@ RepPoint WSMotionGraphGenerator::getRayIntersectionWithFreeSpace(const Point_2& 
         if (const Segment_2* s = boost::get<Segment_2>(&*result)) {
             if(s->source().y() < lowestPoint.y() || s->target().y() < lowestPoint.y()) {
                 lowestPoint = s->source().y() < s->target().y() ? s->source() : s->target();
+                segmentContainingPoint = edge;
                 indexOfLowestPoint = i;
             }
         } else {
             const Point_2* p = boost::get<Point_2 >(&*result);
             if(p->y() < lowestPoint.y()) {
                 lowestPoint = *p;
+                segmentContainingPoint = edge;
                 indexOfLowestPoint = i;
             }
         }
     }
-    return {lowestPoint, indexOfLowestPoint, forVertex};
+    double percentageAlongEdge = Utils::getPercentageAlongSegment(lowestPoint, segmentContainingPoint);
+    return {lowestPoint, indexOfLowestPoint, percentageAlongEdge, forVertex};
 }
 
 /*

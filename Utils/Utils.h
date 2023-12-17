@@ -23,6 +23,8 @@ public:
 
     static bool haveOverlappingEdges(const Polygon_2& poly1, const Polygon_2& poly2);
     static bool aurasOverlap(const Point_2& p1, const Point_2& p2);
+
+    static double getPercentageAlongSegment(const Point_2 pointOnSegment, Segment_2 segment);
 };
 
 

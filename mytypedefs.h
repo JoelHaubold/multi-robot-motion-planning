@@ -67,6 +67,8 @@ typedef std::unordered_map<std::string, MGVertex> STConfId2MGVertex;
 struct RepPoint{
     Point_2 locationOnPolyBoundary;
     int polySegmentIndex;
+    double positionAlongSegment;
+    //std::vector<Segment_2> pathFromVertex;
     MGVertex associatedMGVertex;
 };
 

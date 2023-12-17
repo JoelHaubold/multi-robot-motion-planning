@@ -10,10 +10,10 @@
 
 //TODO: Define used mono and bi sep here to compare runtime of MRMP [At beginning check if permissible]
 //TODO: Disallow parallel edges in motion graph
-const boost::optional<unsigned int> PRE_SET_SEED = boost::none;
-const double MAX_WORKSPACE_SIZE = 1000;
+const boost::optional<unsigned int> PRE_SET_SEED = 3562520494;//boost::none;
+const double MAX_WORKSPACE_SIZE = 100;
 const std::vector<int> WORKSPACE_COMPLEXITY = {100};
-const std::vector<int> NMBR_START_POS = {500,1000,2000};
+const std::vector<int> NMBR_START_POS = {20};
 //const std::vector<int> NMBR_START_POS = {10, 15, 75};
 
 const int REPETITIONS = 5;
