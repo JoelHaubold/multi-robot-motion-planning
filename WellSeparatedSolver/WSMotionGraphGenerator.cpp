@@ -71,9 +71,7 @@ bool WSMotionGraphGenerator::intersectsAuraPredicate(const Point_2& pointToCheck
 
 void WSMotionGraphGenerator::getMGForFStarComponent(Motion_Graph& motionGraph, const FStarComponent &fStarComponent, const std::vector<MGVertex>& relevantVertices) {
 
-    //std::vector<std::tuple<Point_2, MGVertex>> repPoints;
-    std::map<int, RepPoint> polyVertex2RepPoint;
-    std::map<int, std::vector<RepPoint>> polyVertex2RayRepPoints;
+    std::vector<RepPoint> repPoints;
 
     const Polygon_2& outerBoundary = fStarComponent.fStarPolygon.outer_boundary();
     const auto boundaryYMax = outerBoundary.bbox().ymax();
@@ -82,8 +80,7 @@ void WSMotionGraphGenerator::getMGForFStarComponent(Motion_Graph& motionGraph, c
         MGVertexProperty vertexProps = motionGraph[relevantVertex];
         Point_2 vertexLocation = vertexProps.location;
         if(outerBoundary.has_on_unbounded_side(vertexLocation)) {
-            RepPoint repPoint = getRepPoint(outerBoundary, vertexLocation, relevantVertex);
-            polyVertex2RepPoint[repPoint.polySegmentIndex] = repPoint;
+            repPoints.push_back(getBoundaryRepPoint(outerBoundary, fStarComponent.parent.freeSpaceComponent,vertexLocation, relevantVertex));
         } else {
             //Shoot ray upwards
             RepPoint rayIntersection = getRayIntersectionWithFreeSpace(vertexLocation, outerBoundary, boundaryYMax, relevantVertex);
@@ -99,7 +96,7 @@ void WSMotionGraphGenerator::getMGForFStarComponent(Motion_Graph& motionGraph, c
                 //std::cout << "Empty!" << rayIntersection.locationOnPolyBoundary.x() << "," << rayIntersection.locationOnPolyBoundary.y() << std::endl;
                 //std::cout << "Empty!" << motionGraph[rayIntersection.associatedMGVertex].id << std::endl;
                 //repPoints.emplace_back(rayIntersection, relevantVertex);
-                polyVertex2RayRepPoints[rayIntersection.polySegmentIndex].push_back(rayIntersection);
+                repPoints.push_back(rayIntersection);
             } else if(interceptingAuras.size() == 1) {
                 //std::cout << "NonEmpty1" << std::endl;
                 MGEdgeProperty edgeProperty = getRayEdgeProperty(vertexLocation, vertexProps.id, motionGraph[interceptingAuras[0]].location, fStarComponent.parent.freeSpaceComponent);
@@ -115,8 +112,7 @@ void WSMotionGraphGenerator::getMGForFStarComponent(Motion_Graph& motionGraph, c
 
         }
     }
-    const std::list<Point_2>& corners = outerBoundary.vertices();
-    generateListEdges(motionGraph, fStarComponent, corners, polyVertex2RepPoint, polyVertex2RayRepPoints);
+    generateListEdges(motionGraph, fStarComponent, repPoints);
 
 }
 
@@ -137,25 +133,13 @@ bool compareRepPoints(const RepPoint& rp1, const RepPoint& rp2) {
     return rp1.positionAlongSegment < rp2.positionAlongSegment;
 }
 
-void WSMotionGraphGenerator::generateListEdges(Motion_Graph& motionGraph, const FStarComponent& fStarComp ,const std::list<Point_2>& corners, const std::map<int, RepPoint>& polyVertex2RepPoint, const std::map<int, std::vector<RepPoint>>& polyVertex2RayRepPoints) {
+void WSMotionGraphGenerator::generateListEdges(Motion_Graph& motionGraph, const FStarComponent& fStarComp , const std::vector<RepPoint>& unsortedRepPoints) {
 
 
 //    std::for_each(repPoints.begin(), repPoints.end(), [&motionGraph](const auto& repPoint) {
 //        std::cout << motionGraph[get<1>(repPoint)].id << std::endl;
 //    });
-    std::vector<RepPoint> sortedRepPoints;
-
-    for (const auto& pair : polyVertex2RepPoint) {
-        const RepPoint& value = pair.second;
-        sortedRepPoints.push_back(value);
-    }
-
-    for (const auto& pair : polyVertex2RayRepPoints) {
-        const std::vector<RepPoint>& vect = pair.second;
-        for (const auto& value : vect) {
-            sortedRepPoints.push_back(value);
-        }
-    }
+    std::vector<RepPoint> sortedRepPoints = unsortedRepPoints;
 
     std::sort(sortedRepPoints.begin(), sortedRepPoints.end(), compareRepPoints);
 
@@ -187,7 +171,7 @@ void WSMotionGraphGenerator::generateListEdges(Motion_Graph& motionGraph, const 
 
 
 
-RepPoint WSMotionGraphGenerator::getRepPoint(const Polygon_2& outerBoundary, const Point_2& vertexLocation, const MGVertex & forVertex) {
+RepPoint WSMotionGraphGenerator::getBoundaryRepPoint(const Polygon_2& fStarBoundary, const Polygon_2& freeSpaceBoundary, const Point_2& vertexLocation, const MGVertex & forVertex) {
     std::vector<Point_2> intersectionPoints;
     Polygon_2 aura = Utils::generateRobotAura(vertexLocation);
     const std::list<Point_2>& candidates = aura.vertices();
@@ -195,27 +179,30 @@ RepPoint WSMotionGraphGenerator::getRepPoint(const Polygon_2& outerBoundary, con
     //Iterate through vertices if contains edge of aura we take as rep
 
     int i = 0;
-    for(const Point_2& polyCorner : outerBoundary.vertices()) {
+    for(const Point_2& polyCorner : fStarBoundary.vertices()) {
         //std::cout << vertex.x() << " grp; "<<vertex.y() << std::endl;
         auto it = std::find(candidates.begin(), candidates.end(), polyCorner);
         if (it != candidates.end()) {
             // The targetPoint is found in the list
-            return {*it, i, 0.0, forVertex};
+            std::vector<Segment_2> auraPath = getAuraPath(vertexLocation, *it, freeSpaceBoundary);
+            return {*it, i, 0.0, auraPath, forVertex};
         }
         i++;
     }
     i = 0;
-    for(const Segment_2& polyEdge : outerBoundary.edges()) {
+    for(const Segment_2& polyEdge : fStarBoundary.edges()) {
         for(const Segment_2& auraEdge : aura.edges()) {
             const auto result = CGAL::intersection(polyEdge, auraEdge);
             if(result) {
                 if (const Segment_2* s = boost::get<Segment_2>(&*result)) {
+                    std::vector<Segment_2> auraPath = getAuraPath(vertexLocation, s->source(), freeSpaceBoundary);
                     double percentageAlongEdge = Utils::getPercentageAlongSegment(s->source(), polyEdge);
-                    return {s->source(), i, percentageAlongEdge, forVertex};
+                    return {s->source(), i, percentageAlongEdge, auraPath, forVertex};
                 } else {
                     const Point_2* p = boost::get<Point_2 >(&*result);
+                    std::vector<Segment_2> auraPath = getAuraPath(vertexLocation, *p, freeSpaceBoundary);
                     double percentageAlongEdge = Utils::getPercentageAlongSegment(*p, polyEdge);
-                    return {*p, i, percentageAlongEdge, forVertex};
+                    return {*p, i, percentageAlongEdge, auraPath, forVertex};
                 }
             }
         }
@@ -256,7 +243,8 @@ RepPoint WSMotionGraphGenerator::getRayIntersectionWithFreeSpace(const Point_2& 
         }
     }
     double percentageAlongEdge = Utils::getPercentageAlongSegment(lowestPoint, segmentContainingPoint);
-    return {lowestPoint, indexOfLowestPoint, percentageAlongEdge, forVertex};
+    Segment_2 pathToRepPoint = {shooterLocation, lowestPoint};
+    return {lowestPoint, indexOfLowestPoint, percentageAlongEdge, {pathToRepPoint}, forVertex};
 }
 
 /*
@@ -280,12 +268,8 @@ MGEdgeProperty WSMotionGraphGenerator::getListEdgeProperty(const Motion_Graph& m
     const Point_2 vertex2 = mg[vertex2Rep.associatedMGVertex].location;
     const std::string vertex1Id = mg[vertex1Rep.associatedMGVertex].id;
 
-    if((vertex1Rep.locationOnPolyBoundary.y()-vertex1.y()) > ROBOT_SIZE) {
-        path.emplace_back(vertex1, vertex1Rep.locationOnPolyBoundary);
-    } else {
-        std::vector<Segment_2> auraPath = getAuraPath(vertex1, vertex1Rep.locationOnPolyBoundary, freeSpaceBoundary);
-        std::for_each(auraPath.begin(), auraPath.end(), [&path](const Segment_2& seg) {path.push_back(seg);});
-    }
+    //Copy path to rep point 1
+    path.insert(path.begin(), vertex1Rep.pathFromVertex.begin(), vertex1Rep.pathFromVertex.end());
 
     if(vertex1Rep.polySegmentIndex == vertex2Rep.polySegmentIndex) {
         //Both representative points are on the same polygon edge
@@ -317,12 +301,8 @@ MGEdgeProperty WSMotionGraphGenerator::getListEdgeProperty(const Motion_Graph& m
         }
     }
 
-    if((vertex2Rep.locationOnPolyBoundary.y()-vertex2.y()) > ROBOT_SIZE) {
-        path.emplace_back( vertex2Rep.locationOnPolyBoundary, vertex2);
-    } else {
-        std::vector<Segment_2> auraPath = getAuraPath(vertex2Rep.locationOnPolyBoundary, vertex2, freeSpaceBoundary);
-        std::for_each(auraPath.begin(), auraPath.end(), [&path](const Segment_2& seg) {path.push_back(seg);});
-    }
+    //Copy path to rep point 2
+    path.insert(path.begin(), vertex2Rep.pathFromVertex.rbegin(), vertex2Rep.pathFromVertex.rend());
 
     return MGEdgeProperty{path, vertex1Id};
 }

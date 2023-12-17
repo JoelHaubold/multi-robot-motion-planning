@@ -68,7 +68,7 @@ struct RepPoint{
     Point_2 locationOnPolyBoundary;
     int polySegmentIndex;
     double positionAlongSegment;
-    //std::vector<Segment_2> pathFromVertex;
+    std::vector<Segment_2> pathFromVertex;
     MGVertex associatedMGVertex;
 };
 
